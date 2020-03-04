@@ -1,12 +1,14 @@
-%X COMENTARIO COMENTARIO2 STRING
+%X COMENTARIO COMENTARIO2
 %%
 "//"						{BEGIN COMENTARIO;}
 "/*"						{BEGIN COMENTARIO2;}
-<COMENTARIO>"\n$"			{BEGIN 0; printf("\n");}
+<COMENTARIO>\n$				{BEGIN 0; printf("\n");}
+<COMENTARIO>.				;
 <COMENTARIO2>"*/"			{BEGIN 0; printf("\n");}
-[a-zA-Z]+					{BEGIN STRING; printf("ID(");}
-<STRING>"\n$"				{BEGIN 0; printf(")\n");}
-<STRING>.					{printf("%c", yytext[0]);}
+<COMENTARIO2>.				;
+^[a-zA-Z_$]+[a-zA-Z_$0-9]					{printf("ID(%s)",yytext);}
+(^[1-9][0-9_]*[0-9]+ | ^[1-9])			{printf("INTLIT");}
+((^[1-9][0-9_]*[0-9]+ | ^[0-9])"."((^[0-9][0-9_]*[0-9]+ | ^[0-9])+|[eE][+-](^[0-9][0-9_]*[0-9]+ | ^[0-9]))|(^[0-9][0-9_]*[0-9]+ | ^[0-9])[eE][+-](^[0-9][0-9_]*[0-9]+ | ^[0-9]))		{printf("REALLIT");}
 .							;
 \n							;
 %%
