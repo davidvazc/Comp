@@ -1,31 +1,58 @@
-%X COMENTARIO COMENTARIO2
+/*
+Nome - David Jesus Vaz Cortesao Silva
+Numero - 2008109004
+
+Nome - António Marques Maria
+Numero - 2017265346 
+
+*/
+
+%X COMENTARIO COMENTARIO2 TEXTO
+
 %{
 	int line=1;
 	int col=1;
 	int start_line=1;
 	int start_col=1;
 	int flag;
+	int flag_sc=0;
+	int line_error=1,col_error=1;
+	int aux_col,aux_line;
 %}
+
 numero														[0-9]
 letra														[a-zA-Z_$]
 escape														\\(f|n|r|t|\\|\")
 letras_escape												(f|n|r|t|\|")
+newline 													("\n"|"\r\n"|"\r")
+
 %%
-"//"														{BEGIN COMENTARIO;}
-"/*"														{BEGIN COMENTARIO2; start_line=line; start_col=col; col+=yyleng;}
-<COMENTARIO>\n$												{BEGIN 0; col+=yyleng;}
+"//"														{BEGIN COMENTARIO;start_line=line; start_col=col; col+=yyleng;}
+<COMENTARIO>\n												{BEGIN 0; col+=yyleng;line++;}
 <COMENTARIO>.												{col+=yyleng;}
+"/*"														{BEGIN COMENTARIO2; start_line=line; start_col=col; col+=yyleng;}
 <COMENTARIO2>"*/"											{BEGIN 0; col+=yyleng;}
 <COMENTARIO2>.												{col+=yyleng;}
 <COMENTARIO2>\n												{line++;col=1;}
 <COMENTARIO2><<EOF>>										{printf("Line %d, col%d: unterminated comment\n", start_line, start_col); yyterminate();}
+
+\" {BEGIN TEXTO;  aux_col=col;aux_line=line_error=line;col+=yyleng;flag = 1;}
+<TEXTO>\" 													{BEGIN 0; col+=yyleng;}
+<TEXTO>({escape})											{col+=yyleng;}
+<TEXTO>(\\.|\\) 											{printf("Line %d, column %d: invalid escape sequence (%s)\n",line_error=line,col,yytext);col+=yyleng;BEGIN TEXTO;}
+<TEXTO>({newline}) 											{flag_sc = 0;BEGIN 0;line_error=line++;printf("Line %d, column %d: unterminated string literal\n",aux_line,aux_col);col=1;}
+<TEXTO><<EOF>> 												{BEGIN 0;  printf("Line %d, column %d: unterminated string literal\n", aux_line, aux_col);}
+<TEXTO>. {col += yyleng;}
+
+
 [1-9]+([{numero}_]*{numero})*								{if(flag) printf("INTLIT(%s)\n",yytext); col+=yyleng;}
 0															{if(flag) printf("INTLIT(%s)\n",yytext); col+=yyleng;}
 [1-9]+([0-9_]*[0-9])*"."([1-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      {if(flag) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
 "0."([1-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      	{if(flag) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
 "."([1-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      	{if(flag) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
 [1-9]+([0-9_]*[0-9])*[Ee][+-]?[0-9][0-9_]*         		{if(flag) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
-\"([^\n\"\\]|{escape})*\"(\n)$               				{if(flag) printf("STRLIT(%s)\n",yytext); col+=yyleng;}
+\"([^\n\"\\]|{escape})*\"               				{if(flag) printf("STRLIT(%s)\n",yytext); col+=yyleng;}
+
 "true"|"false"												{if(flag) printf("BOOLLIT\n"); col+=yyleng;}
 "&&"														{if(flag) printf("AND\n"); col+=yyleng;}
 "="															{if(flag) printf("ASSIGN\n"); col+=yyleng;}
@@ -71,10 +98,8 @@ letras_escape												(f|n|r|t|\|")
 "while"														{if(flag) printf("WHILE\n"); col+=yyleng;}
 "++"|"--"|"null"|"System"|"Integer"							{if(flag) printf("RESERVED(%s)\n",yytext); col+=yyleng;}
 {letra}({letra}|{numero})*									{if(flag) printf("ID(%s)\n",yytext); col+=yyleng;}
-\"([^\n\"\\]|{escape})*\"               					{printf("Line %d, col %d: unterminated string literal\n", line, col); col+=yyleng;}
-\\\"([^{letras_escape}])*\"									{printf("Line %d, col %d: invalid escape sequence (%s)\n", line, col, yytext); col+=yyleng;}
 " "|\t														{col+=yyleng;}
-"\n"															{line+=1; col=1;}
+{newline}														{line+=1; col=1;}
 .															{printf("Line %d, col %d: illegal character(%s)\n", line, col, yytext); col+=yyleng;}
 %%
 
