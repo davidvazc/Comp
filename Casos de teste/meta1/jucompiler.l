@@ -29,7 +29,7 @@ ILLEGAL     .
 NUMERO     [0-9]
 LETRA														[a-zA-Z_$]
 ID          [a-zA-Z_$]([a-zA-Z_$]|[0-9])*
-INTLIT      [1-9]+([0-9]_]*[0-9])*|0
+INTLIT      [1-9]+([0-9_]*[0-9])*|0
 STRLIT      \"([^\\\n""\"""\r"]|{SEQ})*\"
 SEQ		       \\(f|n|r|t|\\|\")
 ESPACO			(" "|"\t"|"\f")
