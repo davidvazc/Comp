@@ -161,15 +161,14 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 %%
 
 int main(int argc, char *argv[]) {
-  if (argc == 2){
-    if(strncmp(argv[1],"-l",2)==0){
-        yylex();
-    }
-  }else{
-    arg = 1;
-    yylex();
-  }
-  return 0;
+  if(argc>1 &&strcmp(argv[1],"-l")==0){
+		arg=0;
+	}
+	else{
+		arg=1;	
+	}
+	yylex();
+	return 0;
 }
 
 int yywrap() {
