@@ -84,8 +84,8 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 %%
 
 0*[1-9]+([0-9_]*[0-9])*"."([0-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
-"0."([0-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      	                  {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
-"."[0-9]+([0-9_]*[0-9])*([Ee][+-]?[0-9][0-9_]*)?      	                    {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
+0*"0."([0-9]+([0-9_]*[0-9])*)?([Ee][+-]?[0-9][0-9_]*)?      	                  {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
+0*"."[0-9]+([0-9_]*[0-9])*([Ee][+-]?[0-9][0-9_]*)?      	                    {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
 [0-9]+([0-9_]*[0-9])*[Ee][+-]?[0-9][0-9_]*         		                        {if (arg == 0) printf("REALLIT(%s)\n",yytext); col+=yyleng;}
 
 "/*"                        {BEGIN COMENTARIO1; lineError=line; colError=col; col+=yyleng;}
