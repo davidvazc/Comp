@@ -167,6 +167,16 @@ Comma_Type_Id_0_more: /*epsilon*/
 
 
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
+MethodBody: LBRACE Stm_or_VarDecl_0_more RBRACE
+		;
+
+Stm_or_VarDecl_0_more: /*epsilon*/
+		| Stm_or_VarDecl_0_more Statement
+		| Stm_or_VarDecl_0_more VarDecl
+
+
+
+/* VarDecl -> Type ID { COMMA ID } SEMICOLON */
 
 
 
