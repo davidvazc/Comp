@@ -116,6 +116,14 @@ Type: BOOL                                                            {if(erros_
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
 /* Expr −→ Expr (AND | OR | XOR | LSHIFT | RSHIFT) Expr */
+/* Expr −→ Expr ( EQ | GE | GT | LE | LT | NE ) Expr */
+/* Expr −→ ( MINUS | NOT | PLUS ) Expr */
+/* Expr −→ LPAR Expr RPAR */
+/* Expr −→ MethodInvocation | Assignment | ParseArgs */
+/*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <-----------------------------*/
+/* Expr −→ ID [ DOTLENGTH ] */
+/*  */
+
 
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MINUS Expr                                                 {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -127,6 +135,21 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Expr XOR Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Xor", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr LSHIFT Expr                                                {if(erros_sintaxe == 0) { tmp = createNode("Lshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr RSHIFT Expr                                                {if(erros_sintaxe == 0) { tmp = createNode("Rshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr EQ Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Eq", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr GE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Ge", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr GT Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Gt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr LE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr LT Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr NE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   MINUS Expr              %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   NOT Expr                %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
+    |   PLUS Expr               %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
+    |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   Term_ID                                                         {if(erros_sintaxe == 0) {$$ = $1;}}
+
     ;
 
 Term_ID:    ID                                                         {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
@@ -141,18 +164,18 @@ void yyerror(char* s)
 
 int main(int argc, char* argv[]){
     if (argc >1)    {
-        //realizar a análise lexical, emitir o resultado para o stdout (é isto?)
+        /*realizar a análise lexical, emitir o resultado para o stdout (é isto?)*/
         if(strncmp(argv[1],"-l",2 || strncmp(argv[1],"-e1",2)==0){
             arg = 0;
             yylex();
-            //falta no caso da opção -l também os tokens encontrados
+            /*falta no caso da opção -l também os tokens encontrados*/
         }else if(strncmp(argv[1], "-t",2)==0){
             arg = 1;
             yyparse();  
             if (erros_sintaxe == 0)
                 printParseTree (root,0);
-        // aqui falta a opcao "-e2 em que deve escrever 
-        //no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais."
+        /* aqui falta a opcao "-e2 em que deve escrever */
+        /*no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais */
         }else{
             arg = 1;
             yyparse();
