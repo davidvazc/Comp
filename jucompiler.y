@@ -99,10 +99,18 @@ char varType[10];
 %type <ast> Start
 %type <ast> Program
 %type <ast> MethodDecl
-%type <ast> FieldDecl		
-%type <ast> BOOL
+%type <ast> FieldDecl
+%type <ast> Comma_Id_0_more
+%type <ast> Type
+%type <ast> MethodHeader
+%type <ast> FormalParams
+%type <ast> Params_type
+%type <ast> Params_type2
+%type <ast> MethodBody
+%type <ast> VarDecl		
 %type <ast> Expr
 %type <ast> Term_ID
+
 
 %%
 
@@ -110,74 +118,87 @@ char varType[10];
 Start:  Program                                                         {if (erros_sintaxe == 0){root = $$;}}                                                                            
     ; 
 
+
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
 Program: CLASS Term_ID LBRACE MethodDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
-    |   CLASS Term_ID LBRACE FieldDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
-    |   CLASS Term_ID LBRACE SEMICOLON RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+    |   CLASS Term_ID LBRACE FieldDecl RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+    |   CLASS Term_ID LBRACE SEMICOLON RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
     ;
+
 
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
 MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0) { appendBrother($4, $3); $$ = $1;}}
     ;
 
 
-
-/*AJUDA COM A ARVORE, ESTA UMA MERDA*/
+/*---------------Acho q e assim nao?---------------------*/
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */  
-FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON		{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($1, $3); appendBrother($2, tmp); createNode_TypeSpec($3, $2); $$ = tmp;}} 
-		;
-
-Comma_Id_0_more: /*epsilon*/										{if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL");  appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON		    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
 		;
 
 
+Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL");  appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
+		;
 
 
 /*Type −→ BOOL | INT | DOUBLE*/
-Type: BOOL                                                            {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
-    | INT                                                             {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
-    | DOUBLE                                                         {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
+Type: BOOL                                                              {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
+    | INT                                                               {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
+    | DOUBLE                                                            {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
     ;
 
 
-
-
-
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
-MethodHeader: Type Term_ID LPAR FormalParams RPAR
+MethodHeader: Type Term_ID LPAR FormalParams RPAR                    
 		| VOID Term_ID LPAR FormalParams RPAR
 		;
 
 
-
-
 /* FormalParams -> Type ID { COMMA Type ID } */
 /* FormalParams -> STRING LSQ RSQ ID */
-
-FormalParams: */epsilon/*
-		| Type Term_ID Comma_Type_Id_0_more
-		| STRING LSQ RSQ Term_ID
+FormalParams: /*epsilon*/                                               {if(erros_sintaxe == 0) {$$ = createNode("FormalParams", "NULL");}} 
+		| Type Term_ID Params_type                                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+                                                                                                    tmp1 = createNode("ParamDecl", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendBrother($3, tmp1);
+                                                                                                    appendChild($1, tmp1);
+                                                                                                    appendBrother($2, $2);
+                                                                                                    $$ = tmp;
+                                                                        }}
+		| STRING LSQ RSQ Term_ID                                        {if(erros_sintaxe == 0) {$$ = $4;}}
 		;
 
-Comma_Type_Id_0_more: /*epsilon*/
-		| Comma_Type_Id_0_more COMMA Type Term_ID
+
+Params_type: /*epsilon*/                                                {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Params_type Params_type2                                      {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
 		;
 
+
+Params_type2: COMMA Type Term_ID                                        {if(erros_sintaxe == 0) {   tmp = createNode("ParamDecl", "NULL");
+                                                                                                    appendChild($2, tmp);
+                                                                                                    appendBrother($3, $2);
+                                                                                                    $$ = tmp;
+                                                                        }} 
 
 
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
-MethodBody: LBRACE Stm_or_VarDecl_0_more RBRACE
-		;
-
-Stm_or_VarDecl_0_more: /*epsilon*/
-		| Stm_or_VarDecl_0_more Statement
-		| Stm_or_VarDecl_0_more VarDecl
-
+MethodBody: /*empty*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
+        |   MethodBody LBRACE Statement RBRACE                          {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
+        |   MethodBody LBRACE VarDecl RBRACE                            {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
+        ;                     
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-
+VarDecl: /*empty*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
+        |   Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+                                                                                                    tmp1 = createNode("ParamDecl", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendBrother($3, tmp1);
+                                                                                                    appendChild($1, tmp1);
+                                                                                                    appendBrother($2, $1);
+                                                                                                    $$ = tmp;
+                                                                        }}
 
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
@@ -189,8 +210,6 @@ Stm_or_VarDecl_0_more: /*epsilon*/
 /*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <-----------------------------*/
 /* Expr −→ ID [ DOTLENGTH ] */
 /* Expr −→ INTLIT | REALLIT | BOOLLIT */
-
-
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MINUS Expr                                                 {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr STAR Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -220,7 +239,8 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     ;
 
-Term_ID:    ID                                                         {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
+
+Term_ID:    ID                                                          {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
 %%
 
 
