@@ -99,6 +99,10 @@ char varType[10];
 %type <ast> Start
 %type <ast> Program
 %type <ast> MethodDecl
+%type <ast> FieldDecl		
+%type <ast> BOOL
+%type <ast> Expr
+%type <ast> Term_ID
 
 %%
 
@@ -117,13 +121,52 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
     ;
 
 
-/*  */  
+
+/*AJUDA COM A ARVORE, ESTA UMA MERDA*/
+/* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */  
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON		{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($1, $3); appendBrother($2, tmp); createNode_TypeSpec($3, $2); $$ = tmp;}} 
+		;
+
+Comma_Id_0_more: /*epsilon*/										{if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Comma_Id_0_more COMMA Term_ID								{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL");  appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
+		;
+
+
+
 
 /*Type −→ BOOL | INT | DOUBLE*/
 Type: BOOL                                                            {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
     | INT                                                             {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
     | DOUBLE                                                         {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
     ;
+
+
+
+
+
+/* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
+MethodHeader: Type Term_ID LPAR FormalParams RPAR
+		| VOID Term_ID LPAR FormalParams RPAR
+		;
+
+
+
+
+/* FormalParams -> Type ID { COMMA Type ID } */
+/* FormalParams -> STRING LSQ RSQ ID */
+
+FormalParams: */epsilon/*
+		| Type Term_ID Comma_Type_Id_0_more
+		| STRING LSQ RSQ Term_ID
+		;
+
+Comma_Type_Id_0_more: /*epsilon*/
+		| Comma_Type_Id_0_more COMMA Type Term_ID
+		;
+
+
+
+/* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
 
 
 
