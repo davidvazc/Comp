@@ -107,7 +107,18 @@ char varType[10];
 %type <ast> Params_type
 %type <ast> Params_type2
 %type <ast> MethodBody
-%type <ast> VarDecl		
+%type <ast> VarDecl
+%type <ast> Statement
+%type <ast> Stm_0_more
+%type <ast> Else_stm_optional
+%type <ast> Expr_optional
+%type <ast> Method_assign_parse_optional	
+%type <ast> Expr_strlit_or	
+%type <ast> MethodInvocation	
+%type <ast> Expr_comma_expr_0_more_opt
+%type <ast> Comma_expr_0_more	
+%type <ast> Assignment	
+%type <ast> ParseArgs	
 %type <ast> Expr
 %type <ast> Term_ID
 
@@ -183,22 +194,103 @@ Params_type2: COMMA Type Term_ID                                        {if(erro
 
 
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
-MethodBody: /*empty*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
+MethodBody: /*epsilon*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
         |   MethodBody LBRACE Statement RBRACE                          {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
         |   MethodBody LBRACE VarDecl RBRACE                            {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
         ;                     
 
 
+
+
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-VarDecl: /*empty*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
+VarDecl: /*epsilon*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
         |   Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
-                                                                                                    tmp1 = createNode("ParamDecl", "NULL");
+        ;                                                                                           tmp1 = createNode("ParamDecl", "NULL");
                                                                                                     appendChild(tmp1, tmp);
                                                                                                     appendBrother($3, tmp1);
                                                                                                     appendChild($1, tmp1);
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
+
+/*
+Statement -> LBRACE { Statement } RBRACE
+Statement -> IF LPAR Expr RPAR Statement [ ELSE Statement ]
+Statement -> WHILE LPAR Expr RPAR Statement
+Statement -> RETURN [ Expr ] SEMICOLON
+Statement -> [ ( MethodInvocation | Assignment | ParseArgs ) ] SEMICOLON
+Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON  */
+
+
+Statement: LBRACE Stm_0_more RBRACE
+		| IF LPAR Expr RPAR Statement Else_stm_optional
+		| WHILE LPAR Expr RPAR Statement /*AMBIGUA A DIREITA AQUI HELP*/ <-----------------------------------------------------------------------------
+		| RETURN Expr_optional SEMICOLON
+		| Method_assign_parse_optional SEMICOLON
+		| PRINT LPAR Expr_strlit_or RPAR SEMICOLON
+		;
+
+
+Stm_0_more: /*epsilon*/
+		| Stm_0_more Statement
+		;
+
+Else_stm_optional: /*epsilon*/
+		| ELSE Statement
+		;
+
+Expr_optional: /*epsilon*/
+		| Expr
+		;
+
+Method_assign_parse_optional: /*epsilon*/
+		| MethodInvocation
+		| Assignment
+		| ParseArgs
+		;
+
+Expr_strlit_or: Expr
+		| STRLIT
+		;
+
+
+
+
+
+
+/* MethodInvocation -> ID LPAR [ Expr { COMMA Expr } ] RPAR */
+MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR
+		;
+
+Expr_comma_expr_0_more_opt: /*epsilon*/
+		| Expr Comma_expr_0_more
+		;
+
+Comma_expr_0_more: /*epsilon*/
+		| Comma_expr_0_more COMMA Expr
+		;
+
+
+
+
+
+/* Assignment -> ID ASSIGN Expr */
+Assignment: Term_ID ASSIGN Expr
+		;
+
+
+
+
+
+
+
+/* ParseArgs -> PARSEINT LPAR ID LSQ Expr RSQ RPAR */
+ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
+		;
+
+
+
+
 
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
@@ -207,7 +299,7 @@ VarDecl: /*empty*/                                                      {if(erro
 /* Expr −→ ( MINUS | NOT | PLUS ) Expr */
 /* Expr −→ LPAR Expr RPAR */
 /* Expr −→ MethodInvocation | Assignment | ParseArgs */
-/*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <-----------------------------*/
+/*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <---------------------------- FALTA A ARVORE*/
 /* Expr −→ ID [ DOTLENGTH ] */
 /* Expr −→ INTLIT | REALLIT | BOOLLIT */
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -233,11 +325,15 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   Term_ID                                                         {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   Term_ID Dotlength_optional                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("IntLit", $1);}}
     |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     ;
+
+Dotlength_optional: */epsilon*/
+	| DOTLENGTH
+	;
 
 
 Term_ID:    ID                                                          {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
