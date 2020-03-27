@@ -104,7 +104,20 @@ char varType[10];
 
 /* [...] -> Opcional e {...} -> zero ou mais repetições */
 Start:  Program                                                         {if (erros_sintaxe == 0){root = $$;}}                                                                            
-    ;   
+    ; 
+
+/* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
+Program: CLASS Term_ID LBRACE MethodDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+    |   CLASS Term_ID LBRACE FieldDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+    |   CLASS Term_ID LBRACE SEMICOLON RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+    ;
+
+/* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
+MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0) { appendBrother($4, $3); $$ = $1;}}
+    ;
+
+
+/*  */  
 
 /*Type −→ BOOL | INT | DOUBLE*/
 Type: BOOL                                                            {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
@@ -122,7 +135,7 @@ Type: BOOL                                                            {if(erros_
 /* Expr −→ MethodInvocation | Assignment | ParseArgs */
 /*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <-----------------------------*/
 /* Expr −→ ID [ DOTLENGTH ] */
-/*  */
+/* Expr −→ INTLIT | REALLIT | BOOLLIT */
 
 
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -149,7 +162,9 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Term_ID                                                         {if(erros_sintaxe == 0) {$$ = $1;}}
-
+    |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("IntLit", $1);}}
+    |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
+    |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     ;
 
 Term_ID:    ID                                                         {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
