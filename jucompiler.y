@@ -177,7 +177,8 @@ Stm_or_VarDecl_0_more: /*epsilon*/
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-
+VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON
+		;
 
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
