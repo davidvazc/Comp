@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "arvore.h"
 
 int yylex(void);
 void yyerror(char* s);
@@ -116,16 +117,16 @@ Type: BOOL                                                            {if(erros_
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
 /* Expr −→ Expr (AND | OR | XOR | LSHIFT | RSHIFT) Expr */
 
-Expr: Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
+Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MINUS Expr                                                 {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr STAR Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr DIV Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Div", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MOD Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Mod", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr AND Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("And", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr OR Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Or", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr OR Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Or", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr XOR Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Xor", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr LSHIFT Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Lshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr RSHIFT Expr                                                   {if(erros_sintaxe == 0) { tmp = createNode("Rshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr LSHIFT Expr                                                {if(erros_sintaxe == 0) { tmp = createNode("Lshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr RSHIFT Expr                                                {if(erros_sintaxe == 0) { tmp = createNode("Rshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     ;
 
 Term_ID:    ID                                                         {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
@@ -135,19 +136,23 @@ Term_ID:    ID                                                         {if(erros
 void yyerror(char* s)
 {
     erros_sintaxe = 1;
-    printf("Line %d, column %d: %s: %s\n", line_y, col_y, s, yytext);
+    printf("Line %d, col %d: %s: %s\n", line_y, col_y, s, yytext);
 }
 
 int main(int argc, char* argv[]){
     if (argc >1)    {
-        if(strncmp(argv[1],"-l",2)==0){
+        //realizar a análise lexical, emitir o resultado para o stdout (é isto?)
+        if(strncmp(argv[1],"-l",2 || strncmp(argv[1],"-e1",2)==0){
             arg = 0;
             yylex();
+            //falta no caso da opção -l também os tokens encontrados
         }else if(strncmp(argv[1], "-t",2)==0){
             arg = 1;
             yyparse();  
             if (erros_sintaxe == 0)
                 printParseTree (root,0);
+        // aqui falta a opcao "-e2 em que deve escrever 
+        //no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais."
         }else{
             arg = 1;
             yyparse();
