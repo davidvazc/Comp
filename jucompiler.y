@@ -142,8 +142,10 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
 
 
 /*---------------Acho q e assim nao?---------------------*/
-/* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */  
-FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON		    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
+/* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
+/* FieldDecl -> error SEMICOLON
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
+		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
@@ -218,7 +220,8 @@ Statement -> IF LPAR Expr RPAR Statement [ ELSE Statement ]
 Statement -> WHILE LPAR Expr RPAR Statement
 Statement -> RETURN [ Expr ] SEMICOLON
 Statement -> [ ( MethodInvocation | Assignment | ParseArgs ) ] SEMICOLON
-Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON  */
+Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON
+Statement -> error SEMICOLON  */
 
 
 Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) == 3){
@@ -253,6 +256,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 		| RETURN Expr_optional SEMICOLON
 		| Method_assign_parse_optional SEMICOLON
 		| PRINT LPAR Expr_strlit_or RPAR SEMICOLON
+		| error SEMICOLON													{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
@@ -281,7 +285,9 @@ Expr_strlit_or: Expr
 
 
 /* MethodInvocation -> ID LPAR [ Expr { COMMA Expr } ] RPAR */
+/* MethodInvocation -> ID LPAR error RPAR */
 MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR
+		| Term_ID LPAR error RPAR								{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 Expr_comma_expr_0_more_opt: /*epsilon*/
@@ -307,7 +313,9 @@ Assignment: Term_ID ASSIGN Expr
 
 
 /* ParseArgs -> PARSEINT LPAR ID LSQ Expr RSQ RPAR */
+/* ParseArgs -> PARSEINT LPAR error RPAR */
 ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
+		| PARSEINT LPAR error RPAR									{if(erros_sintaxe == 0) {$$ = NULL;}} 
 		;
 
 
@@ -324,6 +332,7 @@ ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
 /*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <---------------------------- FALTA A ARVORE*/
 /* Expr −→ ID [ DOTLENGTH ] */
 /* Expr −→ INTLIT | REALLIT | BOOLLIT */
+/* Expr -> LPAR error RPAR */
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MINUS Expr                                                 {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr STAR Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -351,6 +360,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("IntLit", $1);}}
     |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
+    |   LPAR error RPAR                                                 {if(erros_sintaxe == 0) {$$ = NULL;}}
     ;
 
 Dotlength_optional: /*epsilon*/
