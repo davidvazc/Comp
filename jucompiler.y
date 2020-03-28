@@ -104,8 +104,7 @@ char varType[10];
 %type <ast> Statement
 %type <ast> Stm_0_more
 %type <ast> Expr_optional
-%type <ast> Method_assign_parse_optional	
-%type <ast> Expr_strlit_or	
+%type <ast> Method_assign_parse_optional
 %type <ast> MethodInvocation	
 %type <ast> Expr_comma_expr_0_more_opt
 %type <ast> Comma_expr_0_more	
@@ -124,7 +123,8 @@ Start:  Program                                                         {if (err
 
 
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
-Program: CLASS Term_ID LBRACE MethodDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+Program:    CLASS Term_ID LBRACE RBRACE                                 
+    |   CLASS Term_ID LBRACE MethodDecl RBRACE                          {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
     |   CLASS Term_ID LBRACE FieldDecl RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
     |   CLASS Term_ID LBRACE SEMICOLON RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
     ;
@@ -260,8 +260,19 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     appendChild($2, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
-		| Method_assign_parse_optional SEMICOLON
-		| PRINT LPAR Expr_strlit_or RPAR SEMICOLON
+		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {   tmp = createNode("Semicolon", "NULL");
+                                                                                                    appendChild($1, tmp);
+                                                                                                    $$ = tmp;
+                                                                }}
+		|   PRINT LPAR Expr RPAR SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("Print", "NULL");
+                                                                                                    appendChild($3, tmp);
+                                                                                                    $$ = tmp;
+                                                                }}     
+        |   PRINT LPAR STRLIT RPAR SEMICOLON                    {if(erros_sintaxe == 0) {   tmp = createNode("Print", "NULL");
+                                                                                                    tmp1 = createNode("StrLit", $3);
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    $$ = tmp;
+                                                                }}              
 		| error SEMICOLON										{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
@@ -276,44 +287,50 @@ Expr_optional: /*epsilon*/                                      {if(erros_sintax
 		;
 
 
-Method_assign_parse_optional: /*epsilon*/
-		| MethodInvocation
-		| Assignment
-		| ParseArgs
-		;
-
-
-Expr_strlit_or: Expr
-		| STRLIT
+Method_assign_parse_optional: /*epsilon*/                       {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| MethodInvocation                                      {if(erros_sintaxe == 0) {$$ = $1;}}
+		| Assignment                                            {if(erros_sintaxe == 0) {$$ = $1;}}
+		| ParseArgs                                             {if(erros_sintaxe == 0) {$$ = $1;}}
 		;
 
 
 /* MethodInvocation -> ID LPAR [ Expr { COMMA Expr } ] RPAR */
 /* MethodInvocation -> ID LPAR error RPAR */
-MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR
+MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR  {if(erros_sintaxe == 0) {   tmp = createNode("Call", "NULL");
+                                                                                                    appendChild($1, tmp);
+                                                                                                    appendBrother($3, $1); 
+                                                                                                    $$ = tmp; }} 
 		| Term_ID LPAR error RPAR								{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
-Expr_comma_expr_0_more_opt: /*epsilon*/
-		| Expr Comma_expr_0_more
+Expr_comma_expr_0_more_opt: /*epsilon*/                         {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Expr Comma_expr_0_more                                {if (erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
 		;
 
 
-Comma_expr_0_more: /*epsilon*/
-		| Comma_expr_0_more COMMA Expr
+Comma_expr_0_more: /*epsilon*/                                  {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Comma_expr_0_more COMMA Expr                          {if(erros_sintaxe == 0) { appendBrother($3, $1); $$ = $1;}}
 		;
 
 
 /* Assignment -> ID ASSIGN Expr */
-Assignment: Term_ID ASSIGN Expr
+Assignment: Term_ID ASSIGN Expr                                 {if(erros_sintaxe == 0) {   tmp = createNode("Assign", "NULL");
+                                                                                                    appendChild($1, tmp);
+                                                                                                    appendBrother($3, $1);
+                                                                                                    $$ = tmp;
+                                                                }}
 		;
 
 
 /* ParseArgs -> PARSEINT LPAR ID LSQ Expr RSQ RPAR */
 /* ParseArgs -> PARSEINT LPAR error RPAR */
-ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
-		| PARSEINT LPAR error RPAR									{if(erros_sintaxe == 0) {$$ = NULL;}} 
+ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR              {if(erros_sintaxe == 0) {   tmp = createNode("ParseArgs", "NULL");
+                                                                                                                    appendChild($3, tmp);
+                                                                                                                    appendBrother($5, $3);
+                                                                                                                    $$ = tmp;
+                                                                }}
+		| PARSEINT LPAR error RPAR								{if(erros_sintaxe == 0) {$$ = NULL;}} 
 		;
 
 
@@ -323,7 +340,6 @@ ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
 /* Expr −→ ( MINUS | NOT | PLUS ) Expr */
 /* Expr −→ LPAR Expr RPAR */
 /* Expr −→ MethodInvocation | Assignment | ParseArgs */
-/*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <---------------------------- FALTA A ARVORE*/
 /* Expr −→ ID [ DOTLENGTH ] */
 /* Expr −→ INTLIT | REALLIT | BOOLLIT */
 /* Expr -> LPAR error RPAR */
@@ -397,8 +413,7 @@ int main(int argc, char* argv[]){
             arg = 1;
             yyparse();
         }
-
-        }else{
+        else{
             arg = 1;
             yyparse();
         }
