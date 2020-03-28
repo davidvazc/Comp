@@ -124,10 +124,15 @@ Start:  Program                                                         {if (err
 
 
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
-Program: CLASS Term_ID LBRACE MethodDecl RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
-    |   CLASS Term_ID LBRACE FieldDecl RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
-    |   CLASS Term_ID LBRACE SEMICOLON RBRACE                           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
+Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE                         {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); $$ = tmp;}}
     ;
+
+
+Method_Field_Semi_0_more: /*epsilon*/                                        
+        | Method_Field_Semi_0_more MethodDecl     
+        | Method_Field_Semi_0_more FieldDecl
+        | Method_Field_Semi_0_more SEMICOLON                          
+        ;
 
 
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
