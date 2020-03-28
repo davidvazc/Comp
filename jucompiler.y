@@ -191,19 +191,25 @@ Params_type2: COMMA Type Term_ID                                        {if(erro
                                                                                                     $$ = tmp;
                                                                         }} 
 
-
+/* A produçao fica mal escrita e suposto aceitar ()*/
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
-MethodBody: /*epsilon*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
+/*MethodBody: /*epsilon*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
         |   MethodBody LBRACE Statement RBRACE                          {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
         |   MethodBody LBRACE VarDecl RBRACE                            {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
-        ;                     
+        ;    */                 
 
+
+MethodBody: LBRACE Stm_or_VarDecl_0_more RBRACE
+        ;
+
+Stm_or_VarDecl_0_more: /*epsilon*/
+        | Stm_or_VarDecl_0_more Statement
+        | Stm_or_VarDecl_0_more VarDecl
 
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-VarDecl: /*epsilon*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
-        |   Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                     {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
         ;                                                                                           tmp1 = createNode("ParamDecl", "NULL");
                                                                                                     appendChild(tmp1, tmp);
                                                                                                     appendBrother($3, tmp1);
@@ -211,6 +217,19 @@ VarDecl: /*epsilon*/                                                      {if(er
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
+        
+
+/* A produçao fica mal escrita (vazio pode ficar VarDecl) */
+/* VarDecl -> Type ID { COMMA ID } SEMICOLON */
+/*VarDecl: /*epsilon*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
+        |   Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+        ;                                                                                           tmp1 = createNode("ParamDecl", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendBrother($3, tmp1);
+                                                                                                    appendChild($1, tmp1);
+                                                                                                    appendBrother($2, $1);
+                                                                                                    $$ = tmp;
+                                                                        }}*/
 
 /*
 Statement -> LBRACE { Statement } RBRACE
