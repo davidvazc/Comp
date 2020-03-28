@@ -21,7 +21,7 @@ char varType[10];
     struct ast_node *ast;
 }
 
-%token precedencia
+
 %token <token> BOOLLIT             
 %token <token> AND                 
 %token <token> ASSIGN              
@@ -73,21 +73,21 @@ char varType[10];
 %token <token> INTLIT
 %token <token> STRLIT
 
-
-
-%left COMMA
-%right ASSIGN
-%left OR 
-%left AND
-%left LT GT EQ NE LE GE
-%left PLUS MINUS
-%left STAR DIV MOD
-%right NOT
-%right precedencia
-%left LPAR RPAR LSQ RSQ
-%nonassoc preced
 %nonassoc NO_ELSE
 %nonassoc ELSE
+
+%right ASSIGN
+%left OR
+%left XOR 
+%left AND
+%left EQ NE
+%left GT LT GE LE
+%left LSHIFT RSHIFT
+%left PLUS MINUS
+%left STAR DIV MOD
+%right NOT preced
+
+
 
 %type <ast> Start
 %type <ast> Program
@@ -363,9 +363,9 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Expr LE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr LT Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr NE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   MINUS Expr %prec NOT                                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
-    |   NOT Expr                %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
-    |   PLUS Expr               %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   MINUS Expr %prec preced                                         {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   NOT Expr                                                        {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
+    |   PLUS Expr %prec preced                                          {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
