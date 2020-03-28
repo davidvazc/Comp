@@ -143,7 +143,7 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
 
 /*---------------Acho q e assim nao?---------------------*/
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
-/* FieldDecl -> error SEMICOLON
+/* FieldDecl -> error SEMICOLON */
 FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
 		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
@@ -380,22 +380,35 @@ void yyerror(char* s)
 
 int main(int argc, char* argv[]){
     if (argc >1)    {
-        /*realizar a análise lexical, emitir o resultado para o stdout (é isto?)*/
-        if(strncmp(argv[1],"-l",2 || strncmp(argv[1],"-e1",2)==0){
+        /*realizar a análise lexical, emitir o resultado para o stdout(erros lexicais e tokens)*/
+        if(strncmp(argv[1],"-l",2)==0){
             arg = 0;
             yylex();
-            /*falta no caso da opção -l também os tokens encontrados*/
-        }else if(strncmp(argv[1], "-t",2)==0){
+        }
+        //Erros Lexicais Meta1
+        else if(strncmp(argv[1],"-e1",2)==0){
+        	arg=1;
+        	yylex();
+        }
+
+        /* Imprimir a arvore */
+        else if(strncmp(argv[1], "-t",2)==0){
             arg = 1;
             yyparse();  
             if (erros_sintaxe == 0)
                 printParseTree (root,0);
-        /* aqui falta a opcao "-e2 em que deve escrever */
+         }
         /*no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais */
+        else if(strncmp(argv[1], "-e2",2)==0){
+            arg = 1;
+            yyparse();
+        }
+
         }else{
             arg = 1;
             yyparse();
         }
+    /* Igual a "-e2" */
     }else{
         arg = 1;
         yyparse();
