@@ -73,28 +73,21 @@ char varType[10];
 %token <token> INTLIT
 %token <token> STRLIT
 
-%nonassoc NO_ELSE
-%nonassoc ELSE
+
 
 %left COMMA
 %right ASSIGN
 %left OR 
 %left AND
-%left LT
-%left GT
-%left EQ
-%left NE
-%left LE
-%left GE
-%left PLUS
-%left MINUS
-%left STAR
-%left DIV
-%left MOD
+%left LT GT EQ NE LE GE
+%left PLUS MINUS
+%left STAR DIV MOD
 %right NOT
 %right precedencia
-
+%left LPAR RPAR LSQ RSQ
 %nonassoc preced
+%nonassoc NO_ELSE
+%nonassoc ELSE
 
 %type <ast> Start
 %type <ast> Program
@@ -119,6 +112,7 @@ char varType[10];
 %type <ast> Assignment	
 %type <ast> ParseArgs	
 %type <ast> Expr
+%type <ast> Dotlength_optional
 %type <ast> Term_ID
 
 
@@ -143,7 +137,7 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
 
 /*---------------Acho q e assim nao?---------------------*/
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
-/* FieldDecl -> error SEMICOLON
+/* FieldDecl -> error SEMICOLON */
 FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
 		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
@@ -252,22 +246,35 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                         appendChild($7, tmp2);
                                                                                                                                                  
                                                                 }}                                        
-		| WHILE LPAR Expr RPAR Statement /*AMBIGUA A DIREITA AQUI HELP <----------------------------------------------------------------------------- */
-		| RETURN Expr_optional SEMICOLON
+		| WHILE LPAR Expr RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
+                                                                                                    appendChild( $3, tmp);
+                                                                                                    $$ = tmp;
+                                                                                                    tmp1 = createNode("Block","NULL");
+                                                                                                    
+                                                                                                    tmp = createNode("Block", "NULL");
+                                                                                                    appendBrother(tmp1, tmp);
+                                                                                                    appendBrother(tmp, $3);
+                                                                                                    appendChild($5, tmp);                                                                                            
+                                                                }}
+		| RETURN Expr_optional SEMICOLON                        {if(erros_sintaxe == 0) {   tmp = createNode("Return", "NULL");
+                                                                                                    appendChild($2, tmp);
+                                                                                                    $$ = tmp;
+                                                                }}
 		| Method_assign_parse_optional SEMICOLON
 		| PRINT LPAR Expr_strlit_or RPAR SEMICOLON
-		| error SEMICOLON													{if(erros_sintaxe == 0) {$$ = NULL;}}
+		| error SEMICOLON										{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
-Stm_0_more: /*epsilon*/                                                 {if(erros_sintaxe == 0) {$$ = createNode("Empty", "NULL");}}
-		| Stm_0_more Statement                                          {if (erros_sintaxe == 0) {appendBrother($2, $1); $$ = $1;}}
+Stm_0_more: /*epsilon*/                                         {if(erros_sintaxe == 0) {$$ = createNode("Empty", "NULL");}}
+		| Stm_0_more Statement                                  {if (erros_sintaxe == 0) {appendBrother($2, $1); $$ = $1;}}
 		;
 
 
-Expr_optional: /*epsilon*/
-		| Expr
+Expr_optional: /*epsilon*/                                      {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Expr                                                  {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
 		;
+
 
 Method_assign_parse_optional: /*epsilon*/
 		| MethodInvocation
@@ -275,13 +282,10 @@ Method_assign_parse_optional: /*epsilon*/
 		| ParseArgs
 		;
 
+
 Expr_strlit_or: Expr
 		| STRLIT
 		;
-
-
-
-
 
 
 /* MethodInvocation -> ID LPAR [ Expr { COMMA Expr } ] RPAR */
@@ -290,16 +294,15 @@ MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR
 		| Term_ID LPAR error RPAR								{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
+
 Expr_comma_expr_0_more_opt: /*epsilon*/
 		| Expr Comma_expr_0_more
 		;
 
+
 Comma_expr_0_more: /*epsilon*/
 		| Comma_expr_0_more COMMA Expr
 		;
-
-
-
 
 
 /* Assignment -> ID ASSIGN Expr */
@@ -307,20 +310,11 @@ Assignment: Term_ID ASSIGN Expr
 		;
 
 
-
-
-
-
-
 /* ParseArgs -> PARSEINT LPAR ID LSQ Expr RSQ RPAR */
 /* ParseArgs -> PARSEINT LPAR error RPAR */
 ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR
 		| PARSEINT LPAR error RPAR									{if(erros_sintaxe == 0) {$$ = NULL;}} 
 		;
-
-
-
-
 
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
@@ -349,7 +343,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Expr LE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr LT Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr NE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   MINUS Expr              %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   MINUS Expr %prec NOT                                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   NOT Expr                %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
     |   PLUS Expr               %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
@@ -363,7 +357,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   LPAR error RPAR                                                 {if(erros_sintaxe == 0) {$$ = NULL;}}
     ;
 
-Dotlength_optional: /*epsilon*/
+Dotlength_optional: /*epsilon*/                                         {if(erros_sintaxe == 0) {$$ = createNode("DotLength", "NULL");}}
 	| DOTLENGTH
 	;
 
