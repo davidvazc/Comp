@@ -110,7 +110,6 @@ char varType[10];
 %type <ast> VarDecl
 %type <ast> Statement
 %type <ast> Stm_0_more
-%type <ast> Else_stm_optional
 %type <ast> Expr_optional
 %type <ast> Method_assign_parse_optional	
 %type <ast> Expr_strlit_or	
@@ -162,8 +161,8 @@ Type: BOOL                                                              {if(erro
 
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
 MethodHeader: Type Term_ID LPAR FormalParams RPAR                    
-		| VOID Term_ID LPAR FormalParams RPAR
-		;
+	| VOID Term_ID LPAR FormalParams RPAR
+	;
 
 
 /* FormalParams -> Type ID { COMMA Type ID } */
@@ -222,22 +221,45 @@ Statement -> [ ( MethodInvocation | Assignment | ParseArgs ) ] SEMICOLON
 Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON  */
 
 
-Statement: LBRACE Stm_0_more RBRACE
-		| IF LPAR Expr RPAR Statement Else_stm_optional
-		| WHILE LPAR Expr RPAR Statement /*AMBIGUA A DIREITA AQUI HELP*/ <-----------------------------------------------------------------------------
+Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) == 3){
+                                                                                                        tmp = createNode("Block","NULL");
+																										appendChild($2, tmp); 
+                                                                                                        $$ = tmp;
+                                                                                                    } else {
+                                                                                                        $$ = $2;
+                                                                                                    }
+                                                                        }}
+		| IF LPAR Expr RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
+                                                                                                    appendChild( $3, tmp);
+                                                                                                    $$ = tmp;
+                                                                                                    tmp1 = createNode("Block","NULL");
+                                                                                                    
+                                                                                                    tmp = createNode("Block", "NULL");
+                                                                                                    appendBrother(tmp1, tmp);
+                                                                                                    appendBrother(tmp, $3);
+                                                                                                    appendChild($5, tmp);                                                                                            
+                                                                }} 
+        | IF LPAR Expr RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
+                                                                                                        appendChild( $3, tmp);
+                                                                                                        $$ = tmp;
+                                                                                                        tmp1 = createNode("Block","NULL");
+
+                                                                                                        tmp2 = createNode("Block","NULL");
+                                                                                                        appendBrother(tmp2, $3);
+                                                                                                        appendChild($7, tmp2);
+                                                                                                                                                 
+                                                                }}                                        
+		| WHILE LPAR Expr RPAR Statement /*AMBIGUA A DIREITA AQUI HELP <----------------------------------------------------------------------------- */
 		| RETURN Expr_optional SEMICOLON
 		| Method_assign_parse_optional SEMICOLON
 		| PRINT LPAR Expr_strlit_or RPAR SEMICOLON
 		;
 
 
-Stm_0_more: /*epsilon*/
-		| Stm_0_more Statement
+Stm_0_more: /*epsilon*/                                                 {if(erros_sintaxe == 0) {$$ = createNode("Empty", "NULL");}}
+		| Stm_0_more Statement                                          {if (erros_sintaxe == 0) {appendBrother($2, $1); $$ = $1;}}
 		;
 
-Else_stm_optional: /*epsilon*/
-		| ELSE Statement
-		;
 
 Expr_optional: /*epsilon*/
 		| Expr
@@ -331,7 +353,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     ;
 
-Dotlength_optional: */epsilon*/
+Dotlength_optional: /*epsilon*/
 	| DOTLENGTH
 	;
 
