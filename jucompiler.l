@@ -21,8 +21,8 @@ Numero - 2017265346
 #include "arvore.h"
   
 int line = 1, col = 1, lineError=0, colError=0, strLine=1, strCol, arg = 0;
-int line_error = 1, col_error = 1;
-#define RETURN_TOKEN(token_yacc)   {yylval.token = strdup(yytext); line_error=line; col_error=col; col+=yyleng; return token_yacc;}
+int line_y = 1, col_y = 1;
+#define RETURN_TOKEN(token_yacc)   {yylval.token = strdup(yytext); line_y=line; col_y=col; col+=yyleng; return token_yacc;}
 
 %}
 
@@ -90,13 +90,13 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 [0-9]+([0-9_]*[0-9])*[Ee][+-]?[0-9][0-9_]*         		                          {if (arg == 0) printf("REALLIT(%s)\n",yytext); if (arg == 1) {RETURN_TOKEN(REALLIT);}; col+=yyleng;}
 
 "/*"                                    		{BEGIN COMENTARIO1; lineError=line; colError=col; col+=yyleng;}
-<COMENTARIO1>{LINEBREAK}                		{col_error = col=1; line++;}
+<COMENTARIO1>{LINEBREAK}                		{col_y = col=1; line++;}
 <COMENTARIO1>"*/"                       		{BEGIN 0; col+=yyleng;}
 <COMENTARIO1>.                          		{col+=yyleng;}
 <COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0;}
 
 "//"                                    		{BEGIN COMENTARIO;col+=yyleng;}
-<COMENTARIO>{LINEBREAK}                 		{BEGIN 0; col_error = col=1; line_error = line++;}
+<COMENTARIO>{LINEBREAK}                 		{BEGIN 0; col_y = col=1; line_y = line++;}
 <COMENTARIO>><EOF>>                     		{BEGIN 0;}
 <COMENTARIO>.                           		{col+=yyleng;}
 
