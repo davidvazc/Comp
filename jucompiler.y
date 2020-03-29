@@ -136,7 +136,7 @@ Method_Field_Semi_0_more: /*epsilon*/                                   {if(erro
 
 
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
-MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0) { appendBrother($4, $3); $$ = $1;}}
+MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0){tmp = createNode("MethodDecl", "NULL"); appendChild($3, tmp); appendBrother($4, tmp); $$ = tmp;}}
     ;
 
 
@@ -168,13 +168,11 @@ MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erro
                                                                                                     appendChild($1, tmp1);
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;}}                   
-	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0){tmp = createNode("MethodHeader", "NULL");
-                                                                                                   tmp1 = createNode("FormalParams", "NULL");
-                                                                                                    appendChild(tmp1, tmp);
-                                                                                                    appendBrother($4, tmp1);
-                                                                                                    appendChild($1, tmp1);
-                                                                                                    appendBrother($2, $1);
-                                                                                                    $$ = tmp;}}
+	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0) {   tmp = createNode("MethodHeader", "NULL");
+                                                                                                    appendChild($2, tmp);
+                                                                                                    appendBrother($4, $2);
+                                                                                                    $$ = tmp;
+                                                                        }}
 	;
 
 
@@ -391,7 +389,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     ;
 
 Dotlength_optional: /*epsilon*/                                         {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-	| DOTLENGTH                                                         {if(erros_sintaxe == 0) {$$ = $1;}}  
+	| DOTLENGTH                                                         {if(erros_sintaxe == 0) {$$ = createNode("DotLength", $1);}}  
 	;       
 
 
