@@ -411,8 +411,8 @@ int main(int argc, char* argv[]){
             yylex();
         }
         //Erros Lexicais Meta1
-        else if(strncmp(argv[1],"-e1",2)==0){
-        	arg=1;
+        else if(strncmp(argv[1],"-e1",3)==0){
+        	arg=2;
         	yylex();
         }
 
@@ -424,7 +424,7 @@ int main(int argc, char* argv[]){
                 printParseTree (root,0);
          }
         /*no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais */
-        else if(strncmp(argv[1], "-e2",2)==0){
+        else if(strncmp(argv[1], "-e2",3)==0){
             arg = 1;
             yyparse();
         }
