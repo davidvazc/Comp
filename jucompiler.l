@@ -93,11 +93,11 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 <COMENTARIO1>{LINEBREAK}                		{col_y = col=1; line_y = line++;}
 <COMENTARIO1>"*/"                       		{BEGIN 0; col+=yyleng;}
 <COMENTARIO1>.                          		{col+=yyleng;}
-<COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0;}
+<COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0; if (arg == 1) {RETURN_TOKEN(EOF);}}
 
 "//"                                    		{BEGIN COMENTARIO;col+=yyleng;}
-<COMENTARIO>{LINEBREAK}                 		{BEGIN 0; col_y = col=1; line_y = line++;}
-<COMENTARIO>><EOF>>                     		{BEGIN 0;}
+<COMENTARIO>{LINEBREAK}                 		{BEGIN 0; col_y = col=1; line_y = line++; }
+<COMENTARIO><<EOF>>                     		{BEGIN 0; col+=yyleng; }
 <COMENTARIO>.                           		{col+=yyleng;}
 
 \"                                      	 	{BEGIN COMENTARIO2; strLine = line; strCol = col;col+=yyleng;}
@@ -105,7 +105,7 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 <COMENTARIO2>\\f|\\n|\\r|\\t|\\\\|\\\"       	{col+=yyleng;}
 <COMENTARIO2>(\\.|\\)                        	{printf("Line %d, col %d: invalid escape sequence (%s)\n",line, col, yytext);col+=yyleng;BEGIN COMENTARIO2;}
 <COMENTARIO2>{LINEBREAK}                     	{BEGIN 0; printf("Line %d, col %d: unterminated string literal\n", strLine, strCol);col=1;line++;}
-<COMENTARIO2><<EOF>>                         	{BEGIN 0;printf("Line %d, col %d: unterminated string literal\n", strLine, strCol);}
+<COMENTARIO2><<EOF>>                         	{BEGIN 0; printf("Line %d, col %d: unterminated string literal\n", strLine, strCol);}
 <COMENTARIO2>.                               	{col+=yyleng;}
 
 {BOOLLIT}     {if (arg == 0){printf("BOOLLIT(%s)\n",yytext);} 	if (arg == 1) {RETURN_TOKEN(BOOLLIT);}; 	col+=yyleng;}
