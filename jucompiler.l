@@ -93,7 +93,7 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 <COMENTARIO1>{LINEBREAK}                		{col_y = col=1; line_y = line++;}
 <COMENTARIO1>"*/"                       		{BEGIN 0; col+=yyleng;}
 <COMENTARIO1>.                          		{col+=yyleng;}
-<COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0; if (arg == 1) {RETURN_TOKEN(EOF);}}
+<COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0;}
 
 "//"                                    		{BEGIN COMENTARIO;col+=yyleng;}
 <COMENTARIO>{LINEBREAK}                 		{BEGIN 0; col_y = col=1; line_y = line++; }
@@ -158,7 +158,7 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 {ID}          {if (arg == 0) {printf("ID(%s)\n",yytext);}       if (arg == 1) {RETURN_TOKEN(ID);}; 			col+=yyleng;}
 {STRLIT}      {if (arg == 0) {printf("STRLIT(%s)\n",yytext);}   if (arg == 1) {RETURN_TOKEN(STRLIT);}; 		col+=yyleng;}
 {ILLEGAL}     {printf("Line %d, col %d: illegal character (%s)\n", line, col, yytext);col+=yyleng;}
-
+<<EOF>>       {if (arg == 0){yyterminate();}   if (arg == 1) {RETURN_TOKEN(EOF);}  if (arg == 2){yyterminate();}  ;}
 %%
 
 
