@@ -97,6 +97,7 @@ char varType[10];
 %type <ast> Comma_Id_0_more
 %type <ast> Type
 %type <ast> MethodHeader
+%type <ast> Stm_or_VarDecl_0_more
 %type <ast> FormalParams
 %type <ast> Params_type
 %type <ast> Params_type2
@@ -204,17 +205,21 @@ Params_type2: COMMA Type Term_ID                                        {if(erro
 
 
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
-MethodBody: /*epsilon*/                                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}
-        |   MethodBody LBRACE Statement RBRACE                          {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
-        |   MethodBody LBRACE VarDecl RBRACE                            {if(erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
-        ;                     
+MethodBody: LBRACE Stm_or_VarDecl_0_more RBRACE                         {if(erros_sintaxe == 0) {   tmp = createNode("MethodBody", "NULL");
+                                                                                                    appendChild($2, tmp);
+                                                                                                    $$ = tmp;
+                                                                        }}                         
+        ;
+
+Stm_or_VarDecl_0_more: /*epsilon*/                                      {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+    | Stm_or_VarDecl_0_more Statement                                   {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
+    | Stm_or_VarDecl_0_more VarDecl                                     {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
 
 
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-VarDecl: /*epsilon*/                                                      {if(erros_sintaxe == 0) {$$ = createNode("BodyVarDecl", "NULL");}}
-        |   Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
                                                                                                    tmp1 = createNode("ParamDecl", "NULL");
                                                                                                     appendChild(tmp1, tmp);
                                                                                                     appendBrother($3, tmp1);

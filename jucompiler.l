@@ -90,7 +90,7 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 [0-9]+([0-9_]*[0-9])*[Ee][+-]?[0-9][0-9_]*         		                          {if (arg == 0) printf("REALLIT(%s)\n",yytext); if (arg == 1) {RETURN_TOKEN(REALLIT);}; col+=yyleng;}
 
 "/*"                                    		{BEGIN COMENTARIO1; lineError=line; colError=col; col+=yyleng;}
-<COMENTARIO1>{LINEBREAK}                		{col_y = col=1; line++;}
+<COMENTARIO1>{LINEBREAK}                		{col_y = col=1; line_y = line++;}
 <COMENTARIO1>"*/"                       		{BEGIN 0; col+=yyleng;}
 <COMENTARIO1>.                          		{col+=yyleng;}
 <COMENTARIO1><<EOF>>                    		{printf("Line %d, col %d: unterminated comment\n", lineError, colError);BEGIN 0;}
@@ -152,8 +152,8 @@ RESERVED            ("++"|"--"|"null"|"Integer"|"System"|"break"|"byte"|"case"|"
 {VOID}        {if (arg == 0){printf("VOID\n");}					if (arg == 1) {RETURN_TOKEN(VOID);};		col+=yyleng;}
 {WHILE}       {if (arg == 0){printf("WHILE\n");}				if (arg == 1) {RETURN_TOKEN(WHILE);};		col+=yyleng;}
 {INTLIT}      {if (arg == 0){printf("INTLIT(%s)\n",yytext);}	if (arg == 1) {RETURN_TOKEN(INTLIT);};		col+=yyleng;}
-{LINEBREAK}   {line ++; col = 1;}
-{ESPACO}      {col+=yyleng;}
+{LINEBREAK}   {line_y = line++; col_y = col = 1;}
+{ESPACO}      {col_y = col+=yyleng;}
 {RESERVED}    {if (arg == 0) {printf("RESERVED(%s)\n",yytext);} if (arg == 1){ RETURN_TOKEN(RESERVED);}; 	col+=yyleng;}
 {ID}          {if (arg == 0) {printf("ID(%s)\n",yytext);}       if (arg == 1) {RETURN_TOKEN(ID);}; 			col+=yyleng;}
 {STRLIT}      {if (arg == 0) {printf("STRLIT(%s)\n",yytext);}   if (arg == 1) {RETURN_TOKEN(STRLIT);}; 		col+=yyleng;}
