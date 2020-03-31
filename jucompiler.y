@@ -144,7 +144,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   MINUS Expr              %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   NOT Expr                %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
     |   PLUS Expr               %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
-    |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
+    |   LPAR Expr2 RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
