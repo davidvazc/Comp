@@ -76,6 +76,7 @@ char varType[10];
 %nonassoc NO_ELSE
 %nonassoc ELSE
 
+%left COMMA
 %right ASSIGN
 %left OR
 %left XOR 
@@ -125,7 +126,7 @@ Start:  Program                                                         {if (err
 
 
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
-Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($4, tmp); appendBrother($2, $4); $$ = tmp;}}              
+Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendBrother($4, $2); $$ = tmp;}}              
     ;
 
 
@@ -141,7 +142,6 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
     ;
 
 
-/*---------------Acho q e assim nao?---------------------*/
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
 /* FieldDecl -> error SEMICOLON */
 FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
@@ -162,30 +162,31 @@ Type: BOOL                                                              {if(erro
 
 
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
-MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erros_sintaxe == 0){tmp = createNode("MethodHeader", "NULL");
-                                                                                                   tmp1 = createNode("FormalParams", "NULL");
+MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erros_sintaxe == 0) {   tmp = createNode("MethodDecl", "NULL");
+                                                                                                    tmp1 = createNode("MethodHeader", "NULL");
                                                                                                     appendChild(tmp1, tmp);
-                                                                                                    appendBrother($4, tmp1);
-                                                                                                    appendChild($1, tmp1);
-                                                                                                    appendBrother($2, $1);
+                                                                                                    appendChild($2, tmp1);
+                                                                                                    appendBrother($1, $2);
+                                                                                                    appendBrother($4, $1);
                                                                                                     $$ = tmp;}}                   
 	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0) {   tmp = createNode("MethodHeader", "NULL");
-                                                                                                    appendChild($2, tmp);
-                                                                                                    appendBrother($4, $2);
-                                                                                                    $$ = tmp;
-                                                                        }}
+                                                                                                    tmp1 = createNode("Void", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendChild($2, tmp1);
+                                                                                                    appendBrother($4, tmp);
+                                                                                                    $$ = tmp;}}
 	;
 
 
 /* FormalParams -> Type ID { COMMA Type ID } */
 /* FormalParams -> STRING LSQ RSQ ID */
-FormalParams: /*epsilon*/                                               {if(erros_sintaxe == 0) {$$ = createNode("FormalParams", "NULL");}} 
-		| Type Term_ID Params_type                                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
+FormalParams: /*epsilon*/                                               {if(erros_sintaxe == 0) {$$ = createNode("MethodParams", "NULL");}} 
+		| Type Term_ID Params_type                                      {if(erros_sintaxe == 0) {   tmp = createNode("MethodParams", "NULL");
                                                                                                     tmp1 = createNode("ParamDecl", "NULL");
                                                                                                     appendChild(tmp1, tmp);
                                                                                                     appendBrother($3, tmp1);
                                                                                                     appendChild($1, tmp1);
-                                                                                                    appendBrother($2, $2);
+                                                                                                    appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
 		| STRING LSQ RSQ Term_ID                                        {if(erros_sintaxe == 0) {$$ = $4;}}
