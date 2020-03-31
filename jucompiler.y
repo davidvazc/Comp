@@ -113,7 +113,8 @@ char varType[10];
 %type <ast> Comma_expr_0_more	
 %type <ast> Assignment	
 %type <ast> ParseArgs	
-%type <ast> Expr
+%type <ast> Expr	
+%type <ast> Expr2
 %type <ast> Dotlength_optional
 %type <ast> Term_ID
 
