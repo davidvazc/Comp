@@ -164,9 +164,8 @@ Type: BOOL                                                              {if(erro
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
 MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erros_sintaxe == 0){tmp = createNode("MethodHeader", "NULL");
                                                                                                     appendChild($1, tmp);
-                                                                                                    appendBrother($4, tmp);
-                                                                                                    appendChild($1, tmp);
                                                                                                     appendBrother($2, $1);
+                                                                                                    appendBrother($4, $1);
                                                                                                     $$ = tmp;}}                   
 	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0) {   tmp = createNode("MethodHeader", "NULL");
                                                                                                     tmp1 = createNode("Void", "NULL");
