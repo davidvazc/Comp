@@ -280,7 +280,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     appendChild($2, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
-		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {   tmp = createNode("Semicolon", "NULL");
+		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {
                                                                                                     appendChild($1, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
