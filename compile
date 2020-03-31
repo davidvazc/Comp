@@ -1,7 +1,0 @@
-#!/bin/sh
-lex $1
-bison -y -d -t -v $2
-cc -o $3 *.c
-jucompiler.l
-jucompiler.y
-jucompiler
