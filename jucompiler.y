@@ -126,7 +126,7 @@ Start:  Program                                                         {if (err
 
 
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
-Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendChild($4, $2); $$ = tmp;}}              
+Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendBrother($4, $2); $$ = tmp;}}              
     ;
 
 
@@ -138,7 +138,7 @@ Method_Field_Semi_0_more: /*epsilon*/                                   {if(erro
 
 
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
-MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0){tmp = createNode("MethodDecl", "NULL"); appendChild($3, tmp); appendBrother($4, tmp); $$ = tmp;}}
+MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0){tmp = createNode("MethodDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); $$ = tmp;}}
     ;
 
 
