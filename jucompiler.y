@@ -76,7 +76,7 @@ char varType[10];
 %nonassoc NO_ELSE
 %nonassoc ELSE
 
-%left COMMA
+
 %right ASSIGN
 %left OR
 %left XOR 
@@ -126,7 +126,7 @@ Start:  Program                                                         {if (err
 
 
 /* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
-Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendBrother($4, $2); $$ = tmp;}}              
+Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendChild($4, $2); $$ = tmp;}}              
     ;
 
 
@@ -172,8 +172,8 @@ MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erro
 	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0) {   tmp = createNode("MethodHeader", "NULL");
                                                                                                     tmp1 = createNode("Void", "NULL");
                                                                                                     appendChild(tmp1, tmp);
-                                                                                                    appendChild($2, tmp1);
-                                                                                                    appendBrother($4, tmp);
+                                                                                                    appendBrother($2, tmp1);
+                                                                                                    appendBrother($4, tmp1);
                                                                                                     $$ = tmp;}}
 	;
 
@@ -189,7 +189,14 @@ FormalParams: /*epsilon*/                                               {if(erro
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
-		| STRING LSQ RSQ Term_ID                                        {if(erros_sintaxe == 0) {$$ = $4;}}
+		| STRING LSQ RSQ Term_ID                                        {if(erros_sintaxe == 0) {   tmp = createNode("MethodParams", "NULL");
+                                                                                                    tmp1 = createNode("ParamDecl", "NULL");
+                                                                                                    tmp2 = createNode("StringArray", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendChild(tmp2, tmp1);
+                                                                                                    appendBrother($4, tmp2);
+                                                                                                    $$ = tmp;
+                                                                        }}
 		;
 
 
