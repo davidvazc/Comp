@@ -387,7 +387,7 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Term_ID Dotlength_optional                                      {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("IntLit", $1);}}
+    |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("DecLit", $1);}}
     |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     |   LPAR error RPAR                                                 {if(erros_sintaxe == 0) {$$ = NULL;}}
