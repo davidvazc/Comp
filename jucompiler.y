@@ -76,7 +76,7 @@ char varType[10];
 %nonassoc NO_ELSE
 %nonassoc ELSE
 
-
+%left COMMA
 %right ASSIGN
 %left OR
 %left XOR 
@@ -225,11 +225,9 @@ Stm_or_VarDecl_0_more: /*epsilon*/                                      {if(erro
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("FuncParams", "NULL");
-                                                                                                   tmp1 = createNode("ParamDecl", "NULL");
-                                                                                                    appendChild(tmp1, tmp);
-                                                                                                    appendBrother($3, tmp1);
-                                                                                                    appendChild($1, tmp1);
+VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("VarDecl", "NULL");
+                                                                                                    appendBrother($3, tmp);
+                                                                                                    appendChild($1, tmp);
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
@@ -254,13 +252,10 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                         }}
 		| IF LPAR Expr RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
-                                                                                                    $$ = tmp;
+                                                                                                    appendBrother($5, $3);
                                                                                                     tmp1 = createNode("Block","NULL");
-                                                                                                    
-                                                                                                    tmp = createNode("Block", "NULL");
-                                                                                                    appendBrother(tmp1, tmp);
-                                                                                                    appendBrother(tmp, $3);
-                                                                                                    appendChild($5, tmp);                                                                                            
+                                                                                                    appendBrother(tmp1, $5);
+                                                                                                    $$ = tmp;                                                                                       
                                                                 }} 
         | IF LPAR Expr RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
                                                                                                         appendChild( $3, tmp);
@@ -282,14 +277,11 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     appendBrother(tmp, $3);
                                                                                                     appendChild($5, tmp);                                                                                            
                                                                 }}
-		| RETURN Expr_optional SEMICOLON                        {if(erros_sintaxe == 0) {   tmp = createNode("Return", "NULL");
+		|   RETURN Expr_optional SEMICOLON                        {if(erros_sintaxe == 0) {   tmp = createNode("Return", "NULL");
                                                                                                     appendChild($2, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
-		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {   tmp = createNode("Semicolon", "NULL");
-                                                                                                    appendChild($1, tmp);
-                                                                                                    $$ = tmp;
-                                                                }}
+		|   Method_assign_parse_optional SEMICOLON              {if(erros_sintaxe == 0) {$$ = $1;}}
 		|   PRINT LPAR Expr RPAR SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("Print", "NULL");
                                                                                                     appendChild($3, tmp);
                                                                                                     $$ = tmp;
@@ -299,7 +291,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     appendChild(tmp1, tmp);
                                                                                                     $$ = tmp;
                                                                 }}              
-		| error SEMICOLON										{if(erros_sintaxe == 0) {$$ = NULL;}}
+		|   error SEMICOLON										{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
@@ -309,7 +301,7 @@ Stm_0_more: /*epsilon*/                                         {if(erros_sintax
 
 
 Expr_optional: /*epsilon*/                                      {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Expr                                                  {if(erros_sintaxe == 0) {$$ = createNode("Expr", "NULL");}}
+		| Expr                                                  {if(erros_sintaxe == 0) {$$ = $1;}}
 		;
 
 
