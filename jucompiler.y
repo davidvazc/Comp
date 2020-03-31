@@ -21,7 +21,7 @@ char varType[10];
     struct ast_node *ast;
 }
 
-%token precedencia
+
 %token <token> BOOLLIT             
 %token <token> AND                 
 %token <token> ASSIGN              
@@ -78,38 +78,86 @@ char varType[10];
 
 %left COMMA
 %right ASSIGN
-%left OR 
+%left OR
+%left XOR 
 %left AND
-%left LT
-%left GT
-%left EQ
-%left NE
-%left LE
-%left GE
-%left PLUS
-%left MINUS
-%left STAR
-%left DIV
-%left MOD
-%right NOT
-%right precedencia
+%left EQ NE
+%left GT LT GE LE
+%left LSHIFT RSHIFT
+%left PLUS MINUS
+%left STAR DIV MOD
+%right NOT preced
 
-%nonassoc preced
+
 
 %type <ast> Start
 %type <ast> Program
+%type <ast> Method_Field_Semi_0_more
 %type <ast> MethodDecl
+%type <ast> FieldDecl
+%type <ast> Comma_Id_0_more
+%type <ast> Type
+%type <ast> MethodHeader
+%type <ast> Stm_or_VarDecl_0_more
+%type <ast> FormalParams
+%type <ast> Params_type
+%type <ast> Params_type2
+%type <ast> MethodBody
+%type <ast> VarDecl
+%type <ast> Statement
+%type <ast> Stm_0_more
+%type <ast> Expr_optional
+%type <ast> Method_assign_parse_optional
+%type <ast> MethodInvocation	
+%type <ast> Expr_comma_expr_0_more_opt
+%type <ast> Comma_expr_0_more	
+%type <ast> Assignment	
+%type <ast> ParseArgs	
+%type <ast> Expr
+%type <ast> Dotlength_optional
+%type <ast> Term_ID
+
 
 %%
 
 /* [...] -> Opcional e {...} -> zero ou mais repetições */
 Start:  Program                                                         {if (erros_sintaxe == 0){root = $$;}}                                                                            
-    ;   
+    ; 
+
+
+/* Program −→ CLASS ID LBRACE { MethodDecl | FieldDecl | SEMICOLON } RBRACE */ 
+Program: CLASS Term_ID LBRACE Method_Field_Semi_0_more RBRACE           {if(erros_sintaxe == 0){tmp = createNode("Program", "NULL"); appendChild($2, tmp); appendChild($4, $2); $$ = tmp;}}              
+    ;
+
+
+Method_Field_Semi_0_more: /*epsilon*/                                   {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL"); }}                                       
+        | Method_Field_Semi_0_more MethodDecl                           {if(erros_sintaxe == 0) {appendBrother($2, $1); $$ = $1;}}
+        | Method_Field_Semi_0_more FieldDecl                            {if(erros_sintaxe == 0) {appendBrother($2, $1); $$ = $1;}}
+        | Method_Field_Semi_0_more SEMICOLON                            {if(erros_sintaxe == 0) {$$ = $1;}}
+        ;
+
+
+/* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
+MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0){tmp = createNode("MethodDecl", "NULL"); appendChild($3, tmp); appendBrother($4, tmp); $$ = tmp;}}
+    ;
+
+
+/* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
+/* FieldDecl -> error SEMICOLON */
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
+		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
+		;
+
+
+Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL");  appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
+		;
+
 
 /*Type −→ BOOL | INT | DOUBLE*/
-Type: BOOL                                                            {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
-    | INT                                                             {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
-    | DOUBLE                                                         {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
+Type: BOOL                                                              {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
+    | INT                                                               {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
+    | DOUBLE                                                            {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
     ;
 
 
@@ -310,11 +358,9 @@ ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR              {if(erros_sintax
 /* Expr −→ ( MINUS | NOT | PLUS ) Expr */
 /* Expr −→ LPAR Expr RPAR */
 /* Expr −→ MethodInvocation | Assignment | ParseArgs */
-/*------------------------------> aqui so tenho o id e nao id[ID [ DOTLENGTH ]]     <-----------------------------*/
 /* Expr −→ ID [ DOTLENGTH ] */
-/*  */
-
-
+/* Expr −→ INTLIT | REALLIT | BOOLLIT */
+/* Expr -> LPAR error RPAR */
 Expr:   Expr PLUS Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr MINUS Expr                                                 {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
     |   Expr STAR Expr                                                  {if(erros_sintaxe == 0) { tmp = createNode("Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
@@ -331,18 +377,26 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   Expr LE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr LT Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
     |   Expr NE Expr                                                    {if(erros_sintaxe == 0) { tmp = createNode("Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   MINUS Expr              %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
-    |   NOT Expr                %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
-    |   PLUS Expr               %prec preced                            {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   MINUS Expr %prec preced                                         {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   NOT Expr                                                        {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
+    |   PLUS Expr %prec preced                                          {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   Term_ID                                                         {if(erros_sintaxe == 0) {$$ = $1;}}
-
+    |   Term_ID Dotlength_optional                                      {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("DecLit", $1);}}
+    |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
+    |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
+    |   LPAR error RPAR                                                 {if(erros_sintaxe == 0) {$$ = NULL;}}
     ;
 
-Term_ID:    ID                                                         {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
+Dotlength_optional: /*epsilon*/                                         {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+	| DOTLENGTH                                                         {if(erros_sintaxe == 0) {$$ = createNode("DotLength", $1);}}  
+	;       
+
+
+Term_ID:    ID                                                          {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
 %%
 
 
@@ -354,22 +408,34 @@ void yyerror(char* s)
 
 int main(int argc, char* argv[]){
     if (argc >1)    {
-        /*realizar a análise lexical, emitir o resultado para o stdout (é isto?)*/
-        if(strncmp(argv[1],"-l",2 || strncmp(argv[1],"-e1",2)==0){
+        /*realizar a análise lexical, emitir o resultado para o stdout(erros lexicais e tokens)*/
+        if(strncmp(argv[1],"-l",2)==0){
             arg = 0;
             yylex();
-            /*falta no caso da opção -l também os tokens encontrados*/
-        }else if(strncmp(argv[1], "-t",2)==0){
+        }
+        //Erros Lexicais Meta1
+        else if(strncmp(argv[1],"-e1",3)==0){
+        	arg=2;
+        	yylex();
+        }
+
+        /* Imprimir a arvore */
+        else if(strncmp(argv[1], "-t",2)==0){
             arg = 1;
             yyparse();  
             if (erros_sintaxe == 0)
                 printParseTree (root,0);
-        /* aqui falta a opcao "-e2 em que deve escrever */
+         }
         /*no stdout apenas as mensagens de erro relativas aos erros sintáticos e lexicais */
-        }else{
+        else if(strncmp(argv[1], "-e2",3)==0){
             arg = 1;
             yyparse();
         }
+        else{
+            arg = 1;
+            yyparse();
+        }
+    /* Igual a "-e2" */
     }else{
         arg = 1;
         yyparse();
