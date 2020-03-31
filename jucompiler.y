@@ -162,12 +162,11 @@ Type: BOOL                                                              {if(erro
 
 
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
-MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erros_sintaxe == 0) {   tmp = createNode("MethodDecl", "NULL");
-                                                                                                    tmp1 = createNode("MethodHeader", "NULL");
-                                                                                                    appendChild(tmp1, tmp);
-                                                                                                    appendChild($2, tmp1);
-                                                                                                    appendBrother($1, $2);
-                                                                                                    appendBrother($4, $1);
+MethodHeader: Type Term_ID LPAR FormalParams RPAR                       {if(erros_sintaxe == 0){tmp = createNode("MethodHeader", "NULL");
+                                                                                                    appendChild($1, tmp);
+                                                                                                    appendBrother($4, tmp);
+                                                                                                    appendChild($1, tmp);
+                                                                                                    appendBrother($2, $1);
                                                                                                     $$ = tmp;}}                   
 	| VOID Term_ID LPAR FormalParams RPAR                               {if(erros_sintaxe == 0) {   tmp = createNode("MethodHeader", "NULL");
                                                                                                     tmp1 = createNode("Void", "NULL");
@@ -288,7 +287,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     appendChild($2, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
-		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {
+		| Method_assign_parse_optional SEMICOLON                {if(erros_sintaxe == 0) {   tmp = createNode("Semicolon", "NULL");
                                                                                                     appendChild($1, tmp);
                                                                                                     $$ = tmp;
                                                                 }}
