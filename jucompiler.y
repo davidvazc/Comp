@@ -250,14 +250,14 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                         $$ = $2;
                                                                                                     }
                                                                         }}
-		| IF LPAR Expr RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
+		| IF LPAR Expr2 RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
                                                                                                     appendBrother($5, $3);
                                                                                                     tmp1 = createNode("Block","NULL");
                                                                                                     appendBrother(tmp1, $5);
                                                                                                     $$ = tmp;                                                                                       
                                                                 }} 
-        | IF LPAR Expr RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
+        | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
                                                                                                         appendChild( $3, tmp);
                                                                                                         $$ = tmp;
                                                                                                         tmp1 = createNode("Block","NULL");
@@ -267,7 +267,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                         appendChild($7, tmp2);
                                                                                                                                                  
                                                                 }}                                        
-		| WHILE LPAR Expr RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
+		| WHILE LPAR Expr2 RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
                                                                                                     appendChild( $3, tmp);
                                                                                                     $$ = tmp;
                                                                                                     tmp1 = createNode("Block","NULL");
@@ -282,7 +282,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     $$ = tmp;
                                                                 }}
 		|   Method_assign_parse_optional SEMICOLON              {if(erros_sintaxe == 0) {$$ = $1;}}
-		|   PRINT LPAR Expr RPAR SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("Print", "NULL");
+		|   PRINT LPAR Expr2 RPAR SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("Print", "NULL");
                                                                                                     appendChild($3, tmp);
                                                                                                     $$ = tmp;
                                                                 }}     
@@ -301,7 +301,7 @@ Stm_0_more: /*epsilon*/                                         {if(erros_sintax
 
 
 Expr_optional: /*epsilon*/                                      {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Expr                                                  {if(erros_sintaxe == 0) {$$ = $1;}}
+		| Expr2                                                  {if(erros_sintaxe == 0) {$$ = $1;}}
 		;
 
 
@@ -323,17 +323,17 @@ MethodInvocation: Term_ID LPAR Expr_comma_expr_0_more_opt RPAR  {if(erros_sintax
 
 
 Expr_comma_expr_0_more_opt: /*epsilon*/                         {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Expr Comma_expr_0_more                                {if (erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
+		| Expr2 Comma_expr_0_more                                {if (erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
 		;
 
 
 Comma_expr_0_more: /*epsilon*/                                  {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_expr_0_more COMMA Expr                          {if(erros_sintaxe == 0) { appendBrother($3, $1); $$ = $1;}}
+		| Comma_expr_0_more COMMA Expr2                          {if(erros_sintaxe == 0) { appendBrother($3, $1); $$ = $1;}}
 		;
 
 
 /* Assignment -> ID ASSIGN Expr */
-Assignment: Term_ID ASSIGN Expr                                 {if(erros_sintaxe == 0) {   tmp = createNode("Assign", "NULL");
+Assignment: Term_ID ASSIGN Expr2                                 {if(erros_sintaxe == 0) {   tmp = createNode("Assign", "NULL");
                                                                                                     appendChild($1, tmp);
                                                                                                     appendBrother($3, $1);
                                                                                                     $$ = tmp;
@@ -343,13 +343,18 @@ Assignment: Term_ID ASSIGN Expr                                 {if(erros_sintax
 
 /* ParseArgs -> PARSEINT LPAR ID LSQ Expr RSQ RPAR */
 /* ParseArgs -> PARSEINT LPAR error RPAR */
-ParseArgs: PARSEINT LPAR Term_ID LSQ Expr RSQ RPAR              {if(erros_sintaxe == 0) {   tmp = createNode("ParseArgs", "NULL");
+ParseArgs: PARSEINT LPAR Term_ID LSQ Expr2 RSQ RPAR              {if(erros_sintaxe == 0) {   tmp = createNode("ParseArgs", "NULL");
                                                                                                                     appendChild($3, tmp);
                                                                                                                     appendBrother($5, $3);
                                                                                                                     $$ = tmp;
                                                                 }}
 		| PARSEINT LPAR error RPAR								{if(erros_sintaxe == 0) {$$ = NULL;}} 
 		;
+		
+		
+Expr2: Assignment				{if(erros_sintaxe == 0) {$$ = $1;}}
+     | Expr					{if(erros_sintaxe == 0) {$$ = $1;}}
+     ;
 
 
 /* Expr −→ Expr (PLUS | MINUS | STAR | DIV | MOD) Expr */
@@ -380,9 +385,8 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   MINUS Expr %prec preced                                         {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   NOT Expr                                                        {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
     |   PLUS Expr %prec preced                                          {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
-    |   LPAR Expr RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
+    |   LPAR Expr2 RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   Assignment                                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Term_ID Dotlength_optional                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("DecLit", $1);}}
