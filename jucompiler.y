@@ -140,7 +140,7 @@ Method_Field_Semi_0_more: /*epsilon*/                                   {if(erro
 
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
 MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erros_sintaxe == 0){tmp = createNode("MethodDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); $$ = tmp;}}
-    ;
+        ;
 
 
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
@@ -151,7 +151,11 @@ FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sint
 
 
 Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL");  appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL");  
+                                                                                                    tmp1 =  createNode("Como meter aqui int?", "NULL");
+                                                                                                    appendChild(tmp1, tmp);
+                                                                                                    appendBrother($3, tmp1); 
+                                                                                                    $$ = tmp;}}
 		;
 
 
@@ -209,6 +213,7 @@ Params_type2: COMMA Type Term_ID                                        {if(erro
                                                                                                     appendBrother($3, $2);
                                                                                                     $$ = tmp;
                                                                         }} 
+        ;
 
 
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
@@ -221,6 +226,7 @@ MethodBody: LBRACE Stm_or_VarDecl_0_more RBRACE                         {if(erro
 Stm_or_VarDecl_0_more: /*epsilon*/                                      {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
     | Stm_or_VarDecl_0_more Statement                                   {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
     | Stm_or_VarDecl_0_more VarDecl                                     {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
+    ;
 
 
 
@@ -232,6 +238,9 @@ VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_s
                                                                                                     appendBrother($2, $1);
                                                                                                     $$ = tmp;
                                                                         }}
+    ;
+
+
 
 /*
 Statement -> LBRACE { Statement } RBRACE
