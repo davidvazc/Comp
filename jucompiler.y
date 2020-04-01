@@ -289,7 +289,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 							                                                                          if ($5->next_node != NULL)
 							                                                                          {
 							                                                                            tmp1 = createNode("Block",NULL);
-							                                                                            appendChild($5,aux);
+							                                                                            appendChild($5,tmp1);
 							                                                                            appendBrother(tmp1,$3);
 							                                                                          }
 							                                                                          else
