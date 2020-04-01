@@ -255,7 +255,7 @@ Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON
 Statement -> error SEMICOLON  */
 
 
-Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) == 3){
+Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) >= 2){
                                                                                                         tmp = createNode("Block","NULL");
 																										appendChild($2, tmp); 
                                                                                                         $$ = tmp;
