@@ -255,8 +255,8 @@ Statement -> PRINT LPAR ( Expr | STRLIT ) RPAR SEMICOLON
 Statement -> error SEMICOLON  */
 
 
-Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) == 3){
-                                                                                                        tmp = createNode("Block","NULL");
+Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) >= 2){
+                                                                                                        tmp = createNode("BlockTESTE","NULL");
 																										appendChild($2, tmp); 
                                                                                                         $$ = tmp;
                                                                                                     } else {
@@ -266,16 +266,16 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 		| IF LPAR Expr2 RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
                                                                                                     appendBrother($5, $3);
-                                                                                                    tmp1 = createNode("Blockdoif1","NULL");
+                                                                                                    tmp1 = createNode("Block","NULL");
                                                                                                     appendBrother(tmp1, $5);
                                                                                                     $$ = tmp;                                                                                       
                                                                 }} 
         | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
                                                                                                         appendChild( $3, tmp);
                                                                                                         appendBrother($5, $3);
-                                                                                                        tmp1 = createNode("Blockdo2if","NULL");
+                                                                                                        tmp1 = createNode("Block","NULL");
                                                                                                         appendBrother(tmp1, $5);
-                                                                                                        tmp2 = createNode("Block2else","NULL");
+                                                                                                        tmp2 = createNode("Block","NULL");
                                                                                                         appendBrother(tmp2, tmp1);
                                                                                                         appendChild($7, tmp2);
                                                                                                         $$ = tmp;
@@ -283,26 +283,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                 }}                                        
 		| WHILE LPAR Expr2 RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
                                                                                                     appendChild( $3, tmp);
-
-
-                                                                                                    if ( $5 != NULL)
-							                                                                        {
-							                                                                          if ($5->brother != NULL)
-							                                                                          {
-							                                                                            tmp1 = createNode("Block",NULL);
-							                                                                            appendChild($5,tmp1);
-							                                                                            appendBrother(tmp1,$3);
-							                                                                          }
-							                                                                          else
-							                                                                          {
-							                                                                            appendBrother($5,$3);
-							                                                                          }
-							                                                                        }
-							                                                                        else
-							                                                                        {
-							                                                                          tmp1 = createNode("Block",NULL);
-							                                                                          appendBrother(tmp1,$3);
-							                                                                        }
+                                                                                                    appendBrother($5, $3);
                                                                                                     $$ = tmp;                                                                                            
                                                                 }}
 		|   RETURN Expr_optional SEMICOLON                        {if(erros_sintaxe == 0) {   tmp = createNode("Return", "NULL");
