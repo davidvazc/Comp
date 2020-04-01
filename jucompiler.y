@@ -11,8 +11,8 @@ extern int line_y, col_y;
 extern int arg;
 extern char* yytext;
 int erros_sintaxe = 0;
+char ID_type[10];
 ASTtree* root = NULL, *tmp = NULL, *tmp1 = NULL, *tmp2 = NULL, *tmp3 = NULL, *tmp4 = NULL;
-char varType[10];
 
 %}
 
@@ -96,6 +96,7 @@ char varType[10];
 %type <ast> MethodDecl
 %type <ast> FieldDecl
 %type <ast> Comma_Id_0_more
+%type <ast> Comma_Id_0_more_Var
 %type <ast> Type
 %type <ast> MethodHeader
 %type <ast> Stm_or_VarDecl_0_more
@@ -151,18 +152,18 @@ FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sint
 
 
 Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL");  
-                                                                                                    tmp1 =  createNode("Como meter aqui int?", "NULL");
-                                                                                                    appendChild(tmp1, tmp);
-                                                                                                    appendBrother($3, tmp1); 
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); 
+                                                                                                    tmp1= createNode(ID_type,"NULL"); 
+                                                                                                    appendChild(tmp1,tmp); 
+                                                                                                    appendBrother($3, tmp1);
                                                                                                     $$ = tmp;}}
 		;
 
 
 /*Type −→ BOOL | INT | DOUBLE*/
-Type: BOOL                                                              {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); }}   
-    | INT                                                               {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL");}}                
-    | DOUBLE                                                            {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL");}}
+Type: BOOL                                                              {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); strcpy(ID_type,"Bool"); }}   
+    | INT                                                               {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL"); strcpy(ID_type,"Int");}}                
+    | DOUBLE                                                            {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL"); strcpy(ID_type,"Double");}}
     ;
 
 
@@ -232,7 +233,7 @@ Stm_or_VarDecl_0_more: /*epsilon*/                                      {if(erro
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
-VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("VarDecl", "NULL");
+VarDecl: Type Term_ID Comma_Id_0_more_Var SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("VarDecl", "NULL");
                                                                                                     appendBrother($3, tmp);
                                                                                                     appendChild($1, tmp);
                                                                                                     appendBrother($2, $1);
@@ -240,7 +241,9 @@ VarDecl: Type Term_ID Comma_Id_0_more SEMICOLON                      {if(erros_s
                                                                         }}
     ;
 
-
+Comma_Id_0_more_Var: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+		| Comma_Id_0_more_Var COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = $1;}}
+		;
 
 /*
 Statement -> LBRACE { Statement } RBRACE
