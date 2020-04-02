@@ -152,7 +152,7 @@ FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sint
 
 
 Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); 
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); 
                                                                                                     tmp1= createNode(ID_type,"NULL"); 
                                                                                                     appendChild(tmp1,tmp); 
                                                                                                     appendBrother($3, tmp1);
