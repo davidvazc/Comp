@@ -265,76 +265,19 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                         }}
 		| IF LPAR Expr2 RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
-                                                                                                    if ( $5 != NULL )
-							                                                                        {
-							                                                                          if ( check_nr_nodes($5) >=2 )
-							                                                                          {
-							                                                                            tmp1 = createNode("Block", "NULL");
-							                                                                            appendBrother(tmp1,$3);
-							                                                                            appendChild($5,tmp1);
-
-							                                                                            tmp2 = createNode("Block","NULL");
-							                                                                            appendChild($$,tmp2);
-
-							                                                                          }
-							                                                                          else
-							                                                                          {
-							                                                                            appendChild($5,$3);
-							                                                                            tmp2 = createNode("Block","NULL");
-							                                                                            appendChild(tmp2,$5);
-							                                                                          }
-							                                                                        }
-							                                                                        else
-							                                                                        {
-							                                                                          tmp1 = createNode("Block","NULL");
-							                                                                          appendChild(tmp1,$3);
-							                                                                          tmp2 = createNode("Block","NULL");
-							                                                                          appendChild(tmp2,$3);
-							                                                                        }
+                                                                                                    appendBrother($5, $3);
+                                                                                                    tmp1 = createNode("Blockdoif1","NULL");
+                                                                                                    appendBrother(tmp1, $5);
                                                                                                     $$ = tmp;                                                                                       
                                                                 }} 
         | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
                                                                                                         appendChild( $3, tmp);
-                                                                                                        if ( $5 != NULL )
-								                                                                        {
-								                                                                           if ( check_nr_nodes($5) >=2 )
-								                                                                          {
-								                                                                            tmp1 = createNode("Block", "NULL");
-								                                                                            appendBrother(tmp1,$3);
-								                                                                            appendChild($5,tmp1);
-								                                                                          }
-								                                                                          else
-								                                                                          {
-							                                                                            	appendBrother($5,$3);
-								                                                                          }
-								                                                                        }
-								                                                                        else
-								                                                                        {
-								                                                                          tmp1 = createNode("Block","NULL");
-								                                                                          appendBrother(tmp1,$3);
-								                                                                        }
-
-								                                                                        if ( $7 != NULL )
-								                                                                        {
-								                                                                          if ( check_nr_nodes($7) >=2 )
-								                                                                          {
-								                                                                            tmp2 = createNode("Block","NULL");
-								                                                                            appendBrother(tmp2,$3);
-								                                                                            appendChild($7,tmp2);
-								                                                                          }
-								                                                                          else
-								                                                                          {
-								                                                                            appendBrother($7,$3);
-								                                                                          }
-								                                                                        }
-								                                                                        else
-								                                                                        {
-								                                                                          tmp1 = createNode("Block","NULL");
-								                                                                          appendBrother(tmp1,$3);
-								                                                                        }
-
                                                                                                         $$ = tmp;
-                                                                                                        
+                                                                                                        tmp1 = createNode("Blockdo2if","NULL");
+
+                                                                                                        tmp2 = createNode("Block2else","NULL");
+                                                                                                        appendBrother(tmp2, $3);
+                                                                                                        appendChild($7, tmp2);
                                                                                                                                                  
                                                                 }}                                        
 		| WHILE LPAR Expr2 RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
@@ -345,7 +288,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 							                                                                        {
 							                                                                          if (check_nr_nodes($5) >= 2)
 							                                                                          {
-							                                                                            tmp1 = createNode("Block","NULL");
+							                                                                            tmp1 = createNode("Block",NULL);
 							                                                                            appendChild($5,tmp1);
 							                                                                            appendBrother(tmp1,$3);
 							                                                                          }
@@ -356,7 +299,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 							                                                                        }
 							                                                                        else
 							                                                                        {
-							                                                                          tmp1 = createNode("Block","NULL");
+							                                                                          tmp1 = createNode("Block",NULL);
 							                                                                          appendBrother(tmp1,$3);
 							                                                                        }
                                                                                                     $$ = tmp;                                                                                            
