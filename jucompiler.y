@@ -242,7 +242,7 @@ VarDecl: Type Term_ID Comma_Id_0_more_Var SEMICOLON                      {if(err
     ;
 
 Comma_Id_0_more_Var: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more_Var COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = $1;}}
+		| Comma_Id_0_more_Var COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = tmp;}}
 		;
 
 /*
@@ -266,18 +266,11 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 		| IF LPAR Expr2 RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
                                                                                                     appendBrother($5, $3);
-                                                                                                    tmp1 = createNode("Block","NULL");
                                                                                                     appendBrother(tmp1, $5);
                                                                                                     $$ = tmp;                                                                                       
                                                                 }} 
         | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
                                                                                                         appendChild( $3, tmp);
-                                                                                                        appendBrother($5, $3);
-                                                                                                        tmp1 = createNode("Block","NULL");
-                                                                                                        appendBrother(tmp1, $5);
-                                                                                                        tmp2 = createNode("Block","NULL");
-                                                                                                        appendBrother(tmp2, tmp1);
-                                                                                                        appendChild($7, tmp2);
                                                                                                         $$ = tmp;
                                                                                                                                                  
                                                                 }}                                        
