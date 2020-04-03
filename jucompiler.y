@@ -116,7 +116,6 @@ ASTtree* root = NULL, *tmp = NULL, *tmp1 = NULL, *tmp2 = NULL, *tmp3 = NULL, *tm
 %type <ast> ParseArgs	
 %type <ast> Expr	
 %type <ast> Expr2
-%type <ast> Dotlength_optional
 %type <ast> Term_ID
 
 
@@ -146,17 +145,13 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
 
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
 /* FieldDecl -> error SEMICOLON */
-FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); createNode_TypeSpec($3, $4); $$ = tmp;}} 
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); $$ = tmp;}} 
 		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
 Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); 
-                                                                                                    tmp1= createNode(ID_type,"NULL"); 
-                                                                                                    appendChild(tmp1,tmp); 
-                                                                                                    appendBrother($3, tmp1);
-                                                                                                    $$ = tmp;}}
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = $1;}}
 		;
 
 
@@ -237,7 +232,6 @@ VarDecl: Type Term_ID Comma_Id_0_more_Var SEMICOLON                      {if(err
                                                                                                     appendChild($1, tmp);
                                                                                                     appendBrother($2, $1);
                                                                                                     appendBrother($3, tmp);
-												createNode_TypeSpec($1, $2);
                                                                                                     $$ = tmp;
                                                                         }}
     ;
@@ -258,7 +252,7 @@ Statement -> error SEMICOLON  */
 
 Statement: LBRACE Stm_0_more RBRACE                                     {if(erros_sintaxe == 0) {  if (check_nr_nodes($2) >= 2){
                                                                                                         tmp = createNode("Block","NULL");
-																										appendChild($2, tmp); 
+													appendChild($2, tmp); 
                                                                                                         $$ = tmp;
                                                                                                     } else {
                                                                                                         $$ = $2;
@@ -331,14 +325,14 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                         appendChild( $3, tmp);
                                                                         if ( check_nr_nodes($5)!=0){
 							                                                if (check_nr_nodes($5)>1){
-							                                                    tmp1 = createNode("Block",NULL);
+							                                                    tmp1 = createNode("Block","NULL");
 							                                                    appendChild($5,tmp1);
 							                                                    appendBrother(tmp1,$3);
 							                                                } else {
 							                                                    appendBrother($5,$3);
 							                                                }
 							                                            } else {
-							                                                tmp1 = createNode("Block",NULL);
+							                                                tmp1 = createNode("Block","NULL");
 							                                                appendBrother(tmp1,$3);
 							                                            }
                                                                         $$ = tmp;                                                                                            
@@ -454,19 +448,17 @@ Expr:   Expr PLUS Expr                                                  {if(erro
     |   LPAR Expr2 RPAR                                                  {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                                {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                       {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   Term_ID Dotlength_optional                                      {if(erros_sintaxe == 0) {$$ = $1;}}
+    |   Term_ID	%prec NO_ELSE		                                      {if(erros_sintaxe == 0) {$$ = $1;}}
     |   INTLIT                                                          {if(erros_sintaxe == 0) {$$ = createNode("DecLit", $1);}}
     |   REALLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("RealLit", $1);}}
     |   BOOLLIT                                                         {if(erros_sintaxe == 0) {$$ = createNode("BoolLit", $1);}}
     |   LPAR error RPAR                                                 {if(erros_sintaxe == 0) {$$ = NULL;}}
+    | ID DOTLENGTH 							{if(erros_sintaxe == 0) {tmp = createNode("Length", "NULL");tmp2=createNode("Id",$1); appendChild(tmp2,tmp); $$=tmp;}}
     ;
-
-Dotlength_optional: /*epsilon*/                                         {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-	| DOTLENGTH                                                         {if(erros_sintaxe == 0) {$$ = createNode("DotLength", $1);}}  
-	;       
+  
 
 
-Term_ID:    ID                                                          {if(erros_sintaxe == 0) {$$ = createNode("Id", $1);}}
+Term_ID:    ID                                                          {if(erros_sintaxe == 0) {tmp = createNode("Id", $1); $$=tmp;}}
 %%
 
 
