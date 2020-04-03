@@ -270,7 +270,7 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
 								                                            appendChild($5,tmp1);
 
 								                                            tmp2 = createNode("Block","NULL");
-								                                            appendChild(tmp2,$$);
+								                                            appendChild(tmp2,tmp);
 
 								                                          }
 								                                          else
