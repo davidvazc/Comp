@@ -11,7 +11,7 @@ extern int line_y, col_y;
 extern int arg;
 extern char* yytext;
 int erros_sintaxe = 0;
-char ID_type[10];
+char ID_type[30];
 ASTtree* root = NULL, *tmp = NULL, *tmp1 = NULL, *tmp2 = NULL, *tmp3 = NULL, *tmp4 = NULL;
 
 %}
@@ -145,13 +145,13 @@ MethodDecl: PUBLIC STATIC MethodHeader MethodBody                       {if(erro
 
 /* FieldDecl -> PUBLIC STATIC Type ID { COMMA ID } SEMICOLON */ 
 /* FieldDecl -> error SEMICOLON */
-FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp); $$ = tmp;}} 
+FieldDecl: PUBLIC STATIC Type Term_ID Comma_Id_0_more SEMICOLON			{if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother($4, $3); appendBrother($5, tmp);createNode_Type($3,$5); $$ = tmp;}} 
 		| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
 		;
 
 
 Comma_Id_0_more: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = $1;}}
+		| Comma_Id_0_more COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("FieldDecl", "NULL"); appendChild($3, tmp); appendBrother(tmp, $1); $$ = $1;}}
 		;
 
 
