@@ -234,15 +234,16 @@ Stm_or_VarDecl_0_more: /*epsilon*/                                      {if(erro
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
 VarDecl: Type Term_ID Comma_Id_0_more_Var SEMICOLON                      {if(erros_sintaxe == 0) {   tmp = createNode("VarDecl", "NULL");
-                                                                                                    appendBrother($3, tmp);
                                                                                                     appendChild($1, tmp);
                                                                                                     appendBrother($2, $1);
+                                                                                                    appendBrother($3, tmp);
+												createNode_TypeSpec($1, $2);
                                                                                                     $$ = tmp;
                                                                         }}
     ;
 
 Comma_Id_0_more_Var: /*epsilon*/										    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
-		| Comma_Id_0_more_Var COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = tmp;}}
+		| Comma_Id_0_more_Var COMMA Term_ID								    {if(erros_sintaxe == 0) {tmp = createNode("VarDecl", "NULL"); tmp2=createNode(ID_type,"NULL"); appendChild(tmp2,tmp); appendBrother($3, tmp2); appendBrother(tmp, $1); $$ = $1;}}
 		;
 
 /*
@@ -262,42 +263,86 @@ Statement: LBRACE Stm_0_more RBRACE                                     {if(erro
                                                                                                     } else {
                                                                                                         $$ = $2;
                                                                                                     }
+                                                                                                    
                                                                         }}
 		| IF LPAR Expr2 RPAR Statement       %prec NO_ELSE       {if(erros_sintaxe == 0) {    tmp = createNode("If","NULL");
                                                                                                     appendChild( $3, tmp);
-                                                                                                    appendBrother($5, $3);
-                                                                                                    appendBrother(tmp1, $5);
-                                                                                                    $$ = tmp;                                                                                       
+                                                                                                    if ( check_nr_nodes($5)!=0)
+								                                        {
+								                                          if ( check_nr_nodes($5)>1 )
+								                                          {
+								                                            tmp1 = createNode("Block", "NULL");
+								                                            appendBrother(tmp1,$3);
+								                                            appendChild($5,tmp1);
+
+								                                            tmp2 = createNode("Block","NULL");
+								                                            appendChild(tmp2,$$);
+
+								                                          }
+								                                          else
+								                                          {
+								                                            appendBrother($5,$3);
+								                                            tmp2 = createNode("Block","NULL");
+								                                            appendBrother(tmp2,$5);
+								                                          }
+								                                        }
+								                                        else
+								                                        {
+								                                          tmp1 = createNode("Block","NULL");
+								                                          appendBrother(tmp1,$3);
+								                                          tmp2 = createNode("Block","NULL");
+								                                          appendBrother(tmp2,$3);
+								                                        }
+								                                        $$ = tmp;
+												                                                                              
                                                                 }} 
-        | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {tmp = createNode("If","NULL");
-                                                                                                        appendChild( $3, tmp);
-                                                                                                        $$ = tmp;
-                                                                                                                                                 
-                                                                }}                                        
-		| WHILE LPAR Expr2 RPAR Statement                        {if(erros_sintaxe == 0) {    tmp = createNode("While","NULL");
-                                                                                                    appendChild( $3, tmp);
-
-
-                                                                                                    if ( $5 != NULL)
-							                                                                        {
-							                                                                          if (check_nr_nodes($5) >= 2)
-							                                                                          {
-							                                                                            tmp1 = createNode("Block",NULL);
-							                                                                            appendChild($5,tmp1);
-							                                                                            appendBrother(tmp1,$3);
-							                                                                          }
-							                                                                          else
-							                                                                          {
-							                                                                            appendBrother($5,$3);
-							                                                                          }
-							                                                                        }
-							                                                                        else
-							                                                                        {
-							                                                                          tmp1 = createNode("Block",NULL);
-							                                                                          appendBrother(tmp1,$3);
-							                                                                        }
-                                                                                                    $$ = tmp;                                                                                            
-                                                                }}
+        | IF LPAR Expr2 RPAR Statement ELSE Statement            {if(erros_sintaxe == 0) {    
+                                                                        tmp = createNode("If","NULL");
+                                                                        appendChild( $3, tmp);
+                                                                        if ( check_nr_nodes($5)!=0){
+                                                                            if ( check_nr_nodes($5)>1 ){
+                                                                                tmp1 = createNode("Block", "NULL");
+                                                                                appendBrother(tmp1, $3);
+                                                                                appendChild($5, tmp1);
+                                                                            } else {
+                                                                                appendBrother($5, $3);
+                                                                            } 
+                                                                        } else {
+                                                                            tmp1 = createNode("Block", "NULL");
+                                                                            appendBrother(tmp1, $3);
+                                                                        }
+                                                                        if ( check_nr_nodes($7)!=0){
+                                                                            if ( check_nr_nodes($7)>1 ){
+                                                                                tmp2 = createNode("Block", "NULL");
+                                                                                appendBrother(tmp2, $3);
+                                                                                appendChild($7, tmp2);
+                                                                            } else {
+                                                                                appendBrother($7, $3);
+                                                                            } 
+                                                                        } else {
+                                                                            tmp1 = createNode("Block", "NULL");
+                                                                            appendBrother(tmp1, $3);
+                                                                        }
+                                                                        
+                                                                        $$ = tmp;                                                                                                                          
+                                                                    }}                                         
+		| WHILE LPAR Expr2 RPAR Statement                        {if(erros_sintaxe == 0) {    
+                                                                        tmp = createNode("While","NULL");
+                                                                        appendChild( $3, tmp);
+                                                                        if ( check_nr_nodes($5)!=0){
+							                                                if (check_nr_nodes($5)>1){
+							                                                    tmp1 = createNode("Block",NULL);
+							                                                    appendChild($5,tmp1);
+							                                                    appendBrother(tmp1,$3);
+							                                                } else {
+							                                                    appendBrother($5,$3);
+							                                                }
+							                                            } else {
+							                                                tmp1 = createNode("Block",NULL);
+							                                                appendBrother(tmp1,$3);
+							                                            }
+                                                                        $$ = tmp;                                                                                            
+                                                                    }}
 		|   RETURN Expr_optional SEMICOLON                        {if(erros_sintaxe == 0) {   tmp = createNode("Return", "NULL");
                                                                                                     appendChild($2, tmp);
                                                                                                     $$ = tmp;
@@ -326,7 +371,7 @@ Expr_optional: /*epsilon*/                                      {if(erros_sintax
 		;
 
 
-Method_assign_parse_optional: /*epsilon*/                       {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+Method_assign_parse_optional: /*epsilon*/                       {if(erros_sintaxe == 0) {$$ = createNode("Empty", "NULL");}}
 		| MethodInvocation                                      {if(erros_sintaxe == 0) {$$ = $1;}}
 		| Assignment                                            {if(erros_sintaxe == 0) {$$ = $1;}}
 		| ParseArgs                                             {if(erros_sintaxe == 0) {$$ = $1;}}
