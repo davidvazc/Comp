@@ -46,14 +46,14 @@ void appendBrother(ASTtree* brother, ASTtree* node) {
 	}
 }
 
-ASTtree* createNode_TypeSpec(ASTtree* typeSpect, ASTtree* varSpect_list){
-    ASTtree* aux = varSpect_list;
+ASTtree* createNode_Type(ASTtree* vartype, ASTtree* list){
+    ASTtree* aux = list;
     ASTtree* new_node = NULL;
     int i = 0;
 
     while (aux != NULL){
         if (i == 1){
-            new_node = createNode(typeSpect->type, "NULL");
+            new_node = createNode(vartype->type, "NULL");
             new_node->brother = aux->child;
             aux->child = new_node;
         }else {
@@ -61,7 +61,7 @@ ASTtree* createNode_TypeSpec(ASTtree* typeSpect, ASTtree* varSpect_list){
         }
         aux = aux->brother;
     }
-    return varSpect_list;
+    return list;
 }
 
 void printParseTree (ASTtree * no, int n_points) {

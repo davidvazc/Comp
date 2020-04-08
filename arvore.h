@@ -13,5 +13,5 @@ ASTtree* createNode(char* key, char* value);
 int check_nr_nodes(ASTtree* node);
 void appendChild(ASTtree* child, ASTtree* node);
 void appendBrother(ASTtree* brother, ASTtree* node);
-ASTtree* createNode_TypeSpec(ASTtree* typeSpect, ASTtree* varSpect_list);
+ASTtree* createNode_Type(ASTtree* vartype, ASTtree* list);
 void printParseTree (ASTtree* no, int n_points);
