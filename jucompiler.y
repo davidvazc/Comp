@@ -165,7 +165,7 @@ FieldDecl:
                                                                         appendChild($3,tmp); 
                                                                         appendBrother(createNode("Id",$4),tmp->child); 
                                                                         appendBrother($5, tmp);
-                                                                        createNode_TypeSpec($3,$5); 
+                                                                        createNode_Type($3,$5); 
                                                                         $$ = tmp;
                                                                     }}
 	| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
@@ -293,7 +293,7 @@ VarDecl:
                                                                         appendChild($1,tmp); 
                                                                         appendBrother(createNode("Id",$2),tmp->child); 
                                                                         appendBrother($3, tmp);
-                                                                        createNode_TypeSpec($1,$3); 
+                                                                        createNode_Type($1,$3); 
                                                                         $$ = tmp;
                                                                     }}
 
