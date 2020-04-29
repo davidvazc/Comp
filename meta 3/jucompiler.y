@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "arvore.h"
+#include "semantics.h"
 
 int yylex(void);
 void yyerror(char* s);
@@ -564,6 +565,18 @@ int main(int argc, char* argv[]){
         else if(strncmp(argv[1], "-e2",3)==0){
             arg = 1;
             yyparse();
+        }
+        else if ( strncmp(argv[1],"-s",2) == 0)
+        {
+            arg = 1;
+            yyparse();
+            if ( erros_sintaxe == 0 )
+            {
+                root_pointer = create_table(root->child->value,NULL);
+                ast_to_sym_table(root,root_pointer);
+                print_table(root_pointer);
+                printParseTree(root,0);
+            }
         }
         else{
             arg = 1;

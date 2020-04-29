@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "As-Tree.h"
+#include "arvore.h"
 #include "semantics.h"
 
 
@@ -111,12 +111,12 @@ void add_sym_to_table( table_header * root, char * id , char * type, param_h * p
 }
 
 
-void ast_to_sym_table( node_type * root , table_header * table_root)
+void ast_to_sym_table( ASTtree * root , table_header * table_root)
 {
-    node_type * root_aux;
-    root_aux = root->child_node;
-    node_type * child_aux;
-    node_type * bro_aux;
+    ASTtree * root_aux;
+    root_aux = root->child;
+    ASTtree * child_aux;
+    ASTtree * bro_aux;
     table_header * table_aux = table_root;
     char head[100];
     char type[10];
@@ -130,10 +130,10 @@ void ast_to_sym_table( node_type * root , table_header * table_root)
         {
             if ( strcmp(root_aux->type,"FieldDecl") == 0 )
             {
-                child_aux = root_aux->child_node;
-                //printf("Type: %s\nId: %s\n",child_aux->type,child_aux->next_node->token);
-                //if ( check_double_var(table_root,child_aux->next_node->token) == 0)
-                add_sym_to_table(table_root,child_aux->next_node->token,child_aux->type,NULL,"",1,1);
+                child_aux = root_aux->child;
+                //printf("Type: %s\nId: %s\n",child_aux->type,child_aux->brother->value);
+                //if ( check_double_var(table_root,child_aux->brother->value) == 0)
+                add_sym_to_table(table_root,child_aux->brother->value,child_aux->type,NULL,"",1,1);
 
 
             }
@@ -142,26 +142,26 @@ void ast_to_sym_table( node_type * root , table_header * table_root)
                 // Actualizar tbm na tabela global
                 // Header -> nome da tabelas
                 // Body -> variaveis
-                child_aux = root_aux->child_node;
+                child_aux = root_aux->child;
                 if ( strcmp(child_aux->type,"MethodHeader") == 0)
                 {
-                    strcpy(head,child_aux->child_node->next_node->token);
-                    strcpy(type,child_aux->child_node->type);
+                    strcpy(head,child_aux->child->brother->value);
+                    strcpy(type,child_aux->child->type);
                     strcpy(return_id,type);
 
-                    child_aux = child_aux->child_node;
+                    child_aux = child_aux->child;
                     while( child_aux )
                     {
                         if ( strcmp(child_aux->type,"MethodParams") == 0)
                             break;
-                        child_aux = child_aux->next_node;
+                        child_aux = child_aux->brother;
                     }
                     params = get_params(child_aux);
                     add_sym_to_table(table_root,head,type,params,"",1,0);
                     add_table(table_root,head,params);
 
                 }
-                bro_aux = root_aux->child_node->next_node;
+                bro_aux = root_aux->child->brother;
                 if ( strcmp(bro_aux->type,"MethodBody") == 0 )
                 {
                     while ( table_aux->next != NULL )
@@ -178,19 +178,19 @@ void ast_to_sym_table( node_type * root , table_header * table_root)
                     }
                     else
                         add_sym_to_table(table_root,"return",return_id,NULL,"",2,1);
-                    bro_aux = bro_aux->child_node;
+                    bro_aux = bro_aux->child;
                     while ( bro_aux )
                     {
                         if ( strcmp(bro_aux->type,"VarDecl") == 0 )
                         {
-                            add_sym_to_table(table_root,bro_aux->child_node->next_node->token,bro_aux->child_node->type,NULL,"",2,1);
+                            add_sym_to_table(table_root,bro_aux->child->brother->value,bro_aux->child->type,NULL,"",2,1);
                         }
-                        bro_aux = bro_aux->next_node;
+                        bro_aux = bro_aux->brother;
                     }
                 }
             }
         }
-        root_aux = root_aux->next_node;
+        root_aux = root_aux->brother;
     }
 }
 
@@ -211,25 +211,25 @@ param_h * create_param( char * id , char * type)
 
 }
 
-param_h * get_params( node_type * node )
+param_h * get_params( ASTtree * node )
 {
     param_h * param = NULL;
     param_h * aux;
-    if  ( node->child_node == NULL )
+    if  ( node->child == NULL )
         return NULL;
-    node_type * aux_node = node->child_node;
+    ASTtree * aux_node = node->child;
 
-    param = create_param(aux_node->child_node->next_node->token,aux_node->child_node->type);
+    param = create_param(aux_node->child->brother->value,aux_node->child->type);
     aux = param;
-    aux_node = aux_node->next_node;
+    aux_node = aux_node->brother;
     if ( aux_node == NULL )
         return param;
     else
     {
         while(aux_node)
         {
-            aux->next = create_param(aux_node->child_node->next_node->token,aux_node->child_node->type);
-            aux_node = aux_node->next_node;
+            aux->next = create_param(aux_node->child->brother->value,aux_node->child->type);
+            aux_node = aux_node->brother;
             aux = aux->next;
 
         }
