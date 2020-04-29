@@ -12,7 +12,9 @@ ASTtree* createNode(char* type, char* value) {
 	node->type = type;
     node->value = value;
 
-    node->child = NULL;
+	node->annotation = NULL;
+
+	node->child = NULL;
     node->brother = NULL;
 
 	return node;
@@ -69,19 +71,26 @@ void printParseTree (ASTtree * no, int n_points) {
 	if(no == NULL){	
 		return;
 	}
-	if(strcmp(no->value,"NULL") != 0 ){
-		for(i=0; i< n_points; i++)
-			printf(".");
-		printf("%s(%s)\n", no->type, no->value);
+	if(no->annotation != NULL){
+		if (no->value != NULL && strcmp(no->type, "Deref") != 0)
+			printf("%s(%s) - %s\n", no->type, no->value, no->annotation);
+		else
+			printf("%s - %s\n", no->type, no->annotation);
+	} else{
+		if(strcmp(no->value,"NULL") != 0 ){
+			for(i=0; i< n_points; i++)
+				printf(".");
+			printf("%s(%s)\n", no->type, no->value);
+		}
+		else{
+		    if (strcmp(no->type,"NULL") == 0 || strcmp(no->type,"Empty") == 0);
+		    else{
+			    for(i=0; i< n_points; i++)
+					printf(".");	
+		      	printf("%s\n", no->type);
+		    }
+   		}
 	}
-	else{
-	    if (strcmp(no->type,"NULL") == 0 || strcmp(no->type,"Empty") == 0);
-	    else{
-		    for(i=0; i< n_points; i++)
-				printf(".");	
-	      	printf("%s\n", no->type);
-	    }
-   }
 
 	printParseTree(no->child, n_points+2);
 	printParseTree(no->brother, n_points);

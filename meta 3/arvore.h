@@ -5,6 +5,7 @@
 typedef struct ast_node{
     char* type;
     char* value;
+    char *annotation;
     struct ast_node* brother;
     struct ast_node* child;
 }ASTtree;
