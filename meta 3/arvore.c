@@ -74,9 +74,16 @@ void printParseTree(ASTtree* no, int n_points) {
 	}
 	if (no->annotation != NULL) {
 		if (no->value != NULL && strcmp(no->type, "Deref") != 0) {
-			for (i = 0; i < n_points; i++)
-				printf(".");
-			printf("%s(%s) - %s\n", no->type, no->value, no->annotation);
+			if (strcmp(no->value, "NULL") != 0) {
+				for (i = 0; i < n_points; i++)
+					printf(".");
+				printf("%s(%s) - %s\n", no->type, no->value, no->annotation);
+			}
+			else {
+				for (i = 0; i < n_points; i++)
+					printf(".");
+				printf("%s - %s\n", no->type, no->annotation);
+			}
 		}
 		else {
 			for (i = 0; i < n_points; i++)

@@ -114,6 +114,15 @@ char* troca(char* tipo) {
     if (strcmp(tipo, "Int") == 0) {
         return ("int");
     }
+    if (strcmp(tipo, "StringArray") == 0) {
+        return ("String[]");
+    }
+    if (strcmp(tipo, "Bool") == 0) {
+        return ("boolean");
+    }
+    if (strcmp(tipo, "Double") == 0) {
+        return ("double");
+    }
     //adicionar os outros tipos
     return tipo;
 }
@@ -148,6 +157,21 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
     return strdup("undef");
 }
 
+table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
+    //printlocaltable(table);
+
+    while (table != NULL) {
+        /*
+        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
+        if (strcmp(table->head, id) == 0) {
+            return table;
+        }
+        table = table->next;
+    }
+    return NULL;
+}
+
 
 
 void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) {
@@ -169,22 +193,20 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
         }
         else if (strcmp(bro_aux->type, "Id") == 0) {
             aux = search_symbol_type(bro_aux, table, root);
-            if (strcmp(aux, "StringArray") == 0)
-                bro_aux->annotation = strdup("String[]");
-            else
-                bro_aux->annotation = strdup(aux);
+            bro_aux->annotation = strdup(aux);
 
         }
         else if (strcmp(bro_aux->type, "VarDecl") == 0) {
             add_annotations(bro_aux->brother, table, root);
 
         }
-        /*
+
         else if (strcmp(bro_aux->type, "Call") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_call(bro_aux, table);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = check_call(bro_aux, table, root);
 
         }
+        /*
         else if (strcmp(bro_aux->type, "Store") == 0) {
             add_annotations(bro_aux->children, table);
             bro_aux->annotation = check_store_op(bro_aux);
@@ -672,4 +694,34 @@ void print_tables_params(table_header* root)
         root_aux = root_aux->next;
     }
 
+}
+
+
+char* check_call(ASTtree* node, table_header* table, table_header* root) {
+    ASTtree* id_call = node->child;
+    char* return_type;
+    int func_params, node_params = 0, error = 0;
+    ASTtree* params;
+    sym_table_node* simbolos;
+
+    table = search_symbol_table(id_call->value, root, root);
+
+    if (table != NULL) {
+
+        simbolos = table->lista_sym;
+        node = id_call->brother; /* NODE APONTA PARA O 1º PARAMETRO */
+        return_type = simbolos->type; /* TIPO DO RETURN DA FUNÇÃO */
+        simbolos = simbolos->next; /* TABLE APONTA PARA DEPOIS DE RETURN */
+        params = node;
+        while (params != NULL) {
+            node_params++;
+            params = params->brother;
+        }
+    }
+
+    if (error == 0) {
+        return troca(strdup(return_type));
+    }
+
+    return strdup("undef");
 }

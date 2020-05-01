@@ -52,10 +52,12 @@ param_h* create_param(char*, char*);
 char* toLowerCase(char*);
 int check_double_var(table_header*, char*);
 void print_tables_params(table_header*);
-void annotate_ast(ASTtree*, table_header*);
 void printlocaltable(table_header*);
-void add_annotations(ASTtree*, table_header*);
-char* search_symbol_type(ASTtree*, table_header*);
+void add_annotations(ASTtree*, table_header*, table_header*);
+char* search_symbol_type(ASTtree*, table_header*, table_header*);
+table_header* search_symbol_table(char*, table_header*, table_header*);
+char* check_call(ASTtree*, table_header*, table_header*);
+
 
 
 #endif
