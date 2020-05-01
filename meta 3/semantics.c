@@ -110,113 +110,121 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
-void add_annotations(ASTtree* ast, table_header* table) {
-    if (strcmp(ast->type, "IntLit") == 0) {
-        ast->annotation = strdup("int");
+void add_annotations(ASTtree* bro_aux, table_header* table) {
+    if (bro_aux != NULL) {
+        printf("Type: %s\nId: %s\n", bro_aux->type, bro_aux->value);
+        if (strcmp(bro_aux->type, "DecLit") == 0) {
+            bro_aux->annotation = strdup("int");
 
-    }
-    else if (strcmp(ast->type, "ChrLit") == 0) {
-        ast->annotation = strdup("int");
-
-    }
-    else if (strcmp(ast->type, "StrLit") == 0) {
-        temp = strlit_length(ast->token);
-        ast->annotation = (char*)malloc((7 + num_length(temp)) * sizeof(char));
-        sprintf(ast->annotation, "char[%d]", temp);
-
-    }
-    else if (strcmp(ast->type, "Id") == 0) {
-        ast->annotation = strdup(search_symbol_type(ast, table));
-
-    }
-    else if (strcmp(ast->type, "Call") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_call(ast, table);
-
-    }
-    else if (strcmp(ast->type, "Store") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_store_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Not") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_not_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Lt") == 0 || strcmp(ast->type, "Gt") == 0 || strcmp(ast->type, "Le") == 0 || strcmp(ast->type, "Ge") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_relational_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Eq") == 0 || strcmp(ast->type, "Ne") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_equality_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Or") == 0 || strcmp(ast->type, "And") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_logical_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Mul") == 0 || strcmp(ast->type, "Div") == 0 || strcmp(ast->type, "Mod") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_multiplicative_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Comma") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_comma_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Plus") == 0 || strcmp(ast->type, "Minus") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_unary_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Add") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_add_op(ast, 0);
-
-    }
-    else if (strcmp(ast->type, "Sub") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_sub_op(ast);
-
-    }
-    else if (strcmp(ast->type, "Deref") == 0) {
-        if (ast->token != NULL) {
-            ast_to_symbol_table((ast->children)->children, table);
-            ast->annotation = check_deref_array_op(ast);
         }
+        else if (strcmp(bro_aux->type, "RealLit") == 0) {
+            bro_aux->annotation = strdup("int");
+
+        }
+        else if (strcmp(bro_aux->type, "BoolLit") == 0) {
+            bro_aux->annotation = strdup("int");
+
+        }
+        /*
+        else if (strcmp(bro_aux->type, "Id") == 0) {
+            bro_aux->annotation = strdup(search_symbol_type(bro_aux, table));
+
+        }
+
+        else if (strcmp(bro_aux->type, "Call") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_call(bro_aux, table);
+
+        }
+        else if (strcmp(bro_aux->type, "Store") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_store_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Not") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_not_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Lt") == 0 || strcmp(bro_aux->type, "Gt") == 0 || strcmp(bro_aux->type, "Le") == 0 || strcmp(bro_aux->type, "Ge") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_relational_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Eq") == 0 || strcmp(bro_aux->type, "Ne") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_equality_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Or") == 0 || strcmp(bro_aux->type, "And") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_logical_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Mul") == 0 || strcmp(bro_aux->type, "Div") == 0 || strcmp(bro_aux->type, "Mod") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_multiplicative_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Comma") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_comma_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Plus") == 0 || strcmp(bro_aux->type, "Minus") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_unary_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Add") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_add_op(bro_aux, 0);
+
+        }
+        else if (strcmp(bro_aux->type, "Sub") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_sub_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Deref") == 0) {
+            if (bro_aux->token != NULL) {
+                add_annotations((bro_aux->children)->children, table);
+                bro_aux->annotation = check_deref_array_op(bro_aux);
+            }
+            else {
+                add_annotations(bro_aux->children, table);
+                bro_aux->annotation = check_deref_op(bro_aux);
+            }
+
+        }
+        else if (strcmp(bro_aux->type, "Addr") == 0) {
+            add_annotations(bro_aux->children, table);
+            bro_aux->annotation = check_addr_op(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "If") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_if(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "For") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Return") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_return(bro_aux, table);
+
+        }*/
         else {
-            ast_to_symbol_table(ast->children, table);
-            ast->annotation = check_deref_op(ast);
+            add_annotations(bro_aux->child, table);
+
         }
-
+        add_annotations(bro_aux->brother, table);
     }
-    else if (strcmp(ast->type, "Addr") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        ast->annotation = check_addr_op(ast);
-
-    }
-    else if (strcmp(ast->type, "If") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        check_if(ast);
-
-    }
-    else if (strcmp(ast->type, "For") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        check_for(ast);
-
-    }
-    else if (strcmp(ast->type, "Return") == 0) {
-        ast_to_symbol_table(ast->children, table);
-        check_return(ast, table);
-
-    }
-
 }
+
 
 
 void ast_to_sym_table(ASTtree* root, table_header* table_root)
@@ -296,6 +304,7 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
                             add_sym_to_table(table_root, bro_aux->child->brother->value, bro_aux->child->type, NULL, "", 2, 1);
                             //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value);
                         }
+                        add_annotations(bro_aux, table_root);
                         bro_aux = bro_aux->brother;
                     }
                 }
