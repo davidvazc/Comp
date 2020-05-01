@@ -6,17 +6,17 @@
 #include "semantics.h"
 
 
-sym_table_node * create_symbol ( char * id , param_h * paramtype , char * type, char * flag )
+sym_table_node* create_symbol(char* id, param_h* paramtype, char* type, char* flag)
 {
-    sym_table_node * new_symb = (sym_table_node *) malloc ( sizeof(sym_table_node));
+    sym_table_node* new_symb = (sym_table_node*)malloc(sizeof(sym_table_node));
 
-    new_symb->id = ( char *) malloc (strlen(id)*sizeof(char)+1);
-    new_symb->type = ( char *) malloc (strlen(type)*sizeof(char));
-    new_symb->flag = ( char *) malloc (strlen(flag)*sizeof(char));
+    new_symb->id = (char*)malloc(strlen(id) * sizeof(char) + 1);
+    new_symb->type = (char*)malloc(strlen(type) * sizeof(char));
+    new_symb->flag = (char*)malloc(strlen(flag) * sizeof(char));
 
-    strcpy(new_symb->id,id);
-    strcpy(new_symb->type,type);
-    strcpy(new_symb->flag,flag);
+    strcpy(new_symb->id, id);
+    strcpy(new_symb->type, type);
+    strcpy(new_symb->flag, flag);
 
     new_symb->params = paramtype;
     new_symb->next = NULL;
@@ -25,12 +25,12 @@ sym_table_node * create_symbol ( char * id , param_h * paramtype , char * type, 
 
 }
 
-table_header * create_table ( char * name , param_h * paramtype )
+table_header* create_table(char* name, param_h* paramtype)
 {
 
-    table_header * new_table = ( table_header *) malloc( sizeof(table_header));
-    new_table->head = ( char *) malloc(strlen(name) * sizeof(char)+1);
-    strcpy(new_table->head,name);
+    table_header* new_table = (table_header*)malloc(sizeof(table_header));
+    new_table->head = (char*)malloc(strlen(name) * sizeof(char) + 1);
+    strcpy(new_table->head, name);
     new_table->l_params = paramtype;
     new_table->lista_sym = NULL;
     new_table->next = NULL;
@@ -38,152 +38,263 @@ table_header * create_table ( char * name , param_h * paramtype )
     return new_table;
 }
 
-void add_table ( table_header * root, char * name , param_h * paramtype_aux)
+void add_table(table_header* root, char* name, param_h* paramtype_aux)
 {
-    table_header * aux_table = root;
+    table_header* aux_table = root;
 
-    while(aux_table->next != NULL )
+    while (aux_table->next != NULL)
     {
         aux_table = aux_table->next;
     }
     //printf("-->>> %s\n",paramtype_aux->id);
-    aux_table->next = create_table(name,paramtype_aux);
+    aux_table->next = create_table(name, paramtype_aux);
 }
 
-void add_sym_to_table( table_header * root, char * id , char * type, param_h * paramtype , char * flag, int n_table , int f )
+void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramtype, char* flag, int n_table, int f)
 {
-    table_header * root_aux = root;
-    sym_table_node * aux;
-    param_h * params_aux;
-    if ( n_table == 1 )
+    table_header* root_aux = root;
+    sym_table_node* aux;
+    param_h* params_aux;
+    if (n_table == 1)
     {
-        if ( root_aux != NULL )
+        if (root_aux != NULL)
         {
             aux = root_aux->lista_sym;
-            if ( aux == NULL )
+            if (aux == NULL)
             {
-                if ( paramtype == NULL && f == 0)
+                if (paramtype == NULL && f == 0)
                 {
-                    params_aux = create_param("","");
-                    root_aux->lista_sym = create_symbol(id,params_aux,type,flag);
+                    params_aux = create_param("", "");
+                    root_aux->lista_sym = create_symbol(id, params_aux, type, flag);
                 }
                 else
                 {
-                    root_aux->lista_sym = create_symbol(id,paramtype,type,flag);
+                    root_aux->lista_sym = create_symbol(id, paramtype, type, flag);
                 }
             }
             else
             {
-                while( aux->next != NULL)
+                while (aux->next != NULL)
                     aux = aux->next;
 
-                if ( paramtype == NULL && f == 0)
+                if (paramtype == NULL && f == 0)
                 {
-                    params_aux = create_param("","");
-                    aux->next = create_symbol(id,params_aux,type,flag);
+                    params_aux = create_param("", "");
+                    aux->next = create_symbol(id, params_aux, type, flag);
                 }
                 else
                 {
-                    aux->next = create_symbol(id,paramtype,type,flag);
+                    aux->next = create_symbol(id, paramtype, type, flag);
                 }
             }
         }
     }
     else
     {
-        while(root_aux->next)
+        while (root_aux->next)
             root_aux = root_aux->next;
         aux = root_aux->lista_sym;
-        if ( aux == NULL)
+        if (aux == NULL)
         {
-            root_aux->lista_sym = create_symbol(id,paramtype,type,flag);
+            root_aux->lista_sym = create_symbol(id, paramtype, type, flag);
             //root_aux->l_params = paramtype;
         }
         else
         {
-            while( aux->next != NULL)
+            while (aux->next != NULL)
                 aux = aux->next;
-            aux->next = create_symbol(id,paramtype,type,flag);
+            aux->next = create_symbol(id, paramtype, type, flag);
 
         }
 
     }
 }
 
+void add_annotations(ASTtree* ast, table_header* table) {
+    if (strcmp(ast->type, "IntLit") == 0) {
+        ast->annotation = strdup("int");
 
-void ast_to_sym_table( ASTtree * root , table_header * table_root)
+    }
+    else if (strcmp(ast->type, "ChrLit") == 0) {
+        ast->annotation = strdup("int");
+
+    }
+    else if (strcmp(ast->type, "StrLit") == 0) {
+        temp = strlit_length(ast->token);
+        ast->annotation = (char*)malloc((7 + num_length(temp)) * sizeof(char));
+        sprintf(ast->annotation, "char[%d]", temp);
+
+    }
+    else if (strcmp(ast->type, "Id") == 0) {
+        ast->annotation = strdup(search_symbol_type(ast, table));
+
+    }
+    else if (strcmp(ast->type, "Call") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_call(ast, table);
+
+    }
+    else if (strcmp(ast->type, "Store") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_store_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Not") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_not_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Lt") == 0 || strcmp(ast->type, "Gt") == 0 || strcmp(ast->type, "Le") == 0 || strcmp(ast->type, "Ge") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_relational_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Eq") == 0 || strcmp(ast->type, "Ne") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_equality_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Or") == 0 || strcmp(ast->type, "And") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_logical_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Mul") == 0 || strcmp(ast->type, "Div") == 0 || strcmp(ast->type, "Mod") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_multiplicative_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Comma") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_comma_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Plus") == 0 || strcmp(ast->type, "Minus") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_unary_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Add") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_add_op(ast, 0);
+
+    }
+    else if (strcmp(ast->type, "Sub") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_sub_op(ast);
+
+    }
+    else if (strcmp(ast->type, "Deref") == 0) {
+        if (ast->token != NULL) {
+            ast_to_symbol_table((ast->children)->children, table);
+            ast->annotation = check_deref_array_op(ast);
+        }
+        else {
+            ast_to_symbol_table(ast->children, table);
+            ast->annotation = check_deref_op(ast);
+        }
+
+    }
+    else if (strcmp(ast->type, "Addr") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        ast->annotation = check_addr_op(ast);
+
+    }
+    else if (strcmp(ast->type, "If") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        check_if(ast);
+
+    }
+    else if (strcmp(ast->type, "For") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        check_for(ast);
+
+    }
+    else if (strcmp(ast->type, "Return") == 0) {
+        ast_to_symbol_table(ast->children, table);
+        check_return(ast, table);
+
+    }
+
+}
+
+
+void ast_to_sym_table(ASTtree* root, table_header* table_root)
 {
-    ASTtree * root_aux;
+    ASTtree* root_aux;
     root_aux = root->child;
-    ASTtree * child_aux;
-    ASTtree * bro_aux;
-    table_header * table_aux = table_root;
+    ASTtree* child_aux;
+    ASTtree* bro_aux;
+    table_header* table_aux = table_root;
     char head[100];
     char type[10];
     char return_id[10];
-    param_h * params;
-    param_h * params_aux;
+    param_h* params;
+    param_h* params_aux;
 
     while (root_aux)
     {
-        if ( strcmp(root_aux->type, "NULL")!= 0)
+        if (strcmp(root_aux->type, "NULL") != 0)
         {
-            if ( strcmp(root_aux->type,"FieldDecl") == 0 )
+            if (strcmp(root_aux->type, "FieldDecl") == 0)
             {
                 child_aux = root_aux->child;
                 //printf("Type: %s\nId: %s\n",child_aux->type,child_aux->brother->value);
                 //if ( check_double_var(table_root,child_aux->brother->value) == 0)
-                add_sym_to_table(table_root,child_aux->brother->value,child_aux->type,NULL,"",1,1);
+                add_sym_to_table(table_root, child_aux->brother->value, child_aux->type, NULL, "", 1, 1);
 
 
             }
-            else if ( strcmp(root_aux->type,"MethodDecl") == 0)
+            else if (strcmp(root_aux->type, "MethodDecl") == 0)
             {
                 // Actualizar tbm na tabela global
                 // Header -> nome da tabelas
                 // Body -> variaveis
                 child_aux = root_aux->child;
-                if ( strcmp(child_aux->type,"MethodHeader") == 0)
+                if (strcmp(child_aux->type, "MethodHeader") == 0)
                 {
-                    strcpy(head,child_aux->child->brother->value);
-                    strcpy(type,child_aux->child->type);
-                    strcpy(return_id,type);
+                    strcpy(head, child_aux->child->brother->value);
+                    strcpy(type, child_aux->child->type);
+                    strcpy(return_id, type);
 
                     child_aux = child_aux->child;
-                    while( child_aux )
+                    while (child_aux)
                     {
-                        if ( strcmp(child_aux->type,"MethodParams") == 0)
+                        if (strcmp(child_aux->type, "MethodParams") == 0)
                             break;
                         child_aux = child_aux->brother;
                     }
                     params = get_params(child_aux);
-                    add_sym_to_table(table_root,head,type,params,"",1,0);
-                    add_table(table_root,head,params);
+                    add_sym_to_table(table_root, head, type, params, "", 1, 0);
+                    //printf("Type: %s\nId: %s\n",type,head);
+                    add_table(table_root, head, params);
 
                 }
                 bro_aux = root_aux->child->brother;
-                if ( strcmp(bro_aux->type,"MethodBody") == 0 )
+                if (strcmp(bro_aux->type, "MethodBody") == 0)
                 {
-                    while ( table_aux->next != NULL )
+                    while (table_aux->next != NULL)
                         table_aux = table_aux->next;
-                    if ( table_aux->l_params != NULL )
+                    if (table_aux->l_params != NULL)
                     {
                         params_aux = table_aux->l_params;
-                        add_sym_to_table(table_root,"return",return_id,NULL,"",2,1);
-                        while(params_aux)
+                        add_sym_to_table(table_root, "return", return_id, NULL, "", 2, 1);
+                        while (params_aux)
                         {
-                            add_sym_to_table(table_root,params_aux->id,params_aux->type,NULL,"param",2,1);
+                            add_sym_to_table(table_root, params_aux->id, params_aux->type, NULL, "param", 2, 1);
+                            //printf("Type: %s\nId: %s\n",params_aux->type,params_aux->id);
                             params_aux = params_aux->next;
                         }
                     }
                     else
-                        add_sym_to_table(table_root,"return",return_id,NULL,"",2,1);
+                        add_sym_to_table(table_root, "return", return_id, NULL, "", 2, 1);
                     bro_aux = bro_aux->child;
-                    while ( bro_aux )
+                    while (bro_aux)
                     {
-                        if ( strcmp(bro_aux->type,"VarDecl") == 0 )
+                        if (strcmp(bro_aux->type, "VarDecl") == 0)
                         {
-                            add_sym_to_table(table_root,bro_aux->child->brother->value,bro_aux->child->type,NULL,"",2,1);
+                            add_sym_to_table(table_root, bro_aux->child->brother->value, bro_aux->child->type, NULL, "", 2, 1);
+                            //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value);
                         }
                         bro_aux = bro_aux->brother;
                     }
@@ -195,40 +306,40 @@ void ast_to_sym_table( ASTtree * root , table_header * table_root)
 }
 
 
-param_h * create_param( char * id , char * type)
+param_h* create_param(char* id, char* type)
 {
     //TODO: converter as cenas do String[] e cenas para minuscula
-    param_h * params = ( param_h * ) malloc(sizeof(param_h));
-    params->id = (char *) malloc ( strlen(id) * sizeof(char)+1);
-    params->type = ( char * ) malloc (strlen(type) * sizeof(char));
+    param_h* params = (param_h*)malloc(sizeof(param_h));
+    params->id = (char*)malloc(strlen(id) * sizeof(char) + 1);
+    params->type = (char*)malloc(strlen(type) * sizeof(char));
 
 
-    strcpy(params->id,id);
-    strcpy(params->type,type);
+    strcpy(params->id, id);
+    strcpy(params->type, type);
     params->next = NULL;
 
     return params;
 
 }
 
-param_h * get_params( ASTtree * node )
+param_h* get_params(ASTtree* node)
 {
-    param_h * param = NULL;
-    param_h * aux;
-    if  ( node->child == NULL )
+    param_h* param = NULL;
+    param_h* aux;
+    if (node->child == NULL)
         return NULL;
-    ASTtree * aux_node = node->child;
+    ASTtree* aux_node = node->child;
 
-    param = create_param(aux_node->child->brother->value,aux_node->child->type);
+    param = create_param(aux_node->child->brother->value, aux_node->child->type);
     aux = param;
     aux_node = aux_node->brother;
-    if ( aux_node == NULL )
+    if (aux_node == NULL)
         return param;
     else
     {
-        while(aux_node)
+        while (aux_node)
         {
-            aux->next = create_param(aux_node->child->brother->value,aux_node->child->type);
+            aux->next = create_param(aux_node->child->brother->value, aux_node->child->type);
             aux_node = aux_node->brother;
             aux = aux->next;
 
@@ -237,11 +348,11 @@ param_h * get_params( ASTtree * node )
     return param;
 }
 
-void print_table( table_header * root)
+void print_table(table_header* root)
 {
-    table_header * root_aux = root;
-    sym_table_node * sym_aux;
-    param_h * paramtype;
+    table_header* root_aux = root;
+    sym_table_node* sym_aux;
+    param_h* paramtype;
     int aux = 0;
     int i = 0;
 
@@ -250,26 +361,26 @@ void print_table( table_header * root)
     {
 
         printf("===== ");
-        if ( i == 0 )
+        if (i == 0)
             printf("Class ");
         else
             printf("Method ");
-        printf("%s",root_aux->head);
+        printf("%s", root_aux->head);
         paramtype = root_aux->l_params;
-        if ( paramtype != NULL )
+        if (paramtype != NULL)
         {
             printf("(");
-            while(paramtype)
+            while (paramtype)
             {
-                if ( paramtype->next != NULL )
+                if (paramtype->next != NULL)
                 {
-                    if ( strcmp(paramtype->type,"StringArray") == 0 )
+                    if (strcmp(paramtype->type, "StringArray") == 0)
                         printf("String[]");
-                    else if ( strcmp(paramtype->type,"Bool") == 0 )
+                    else if (strcmp(paramtype->type, "Bool") == 0)
                         printf("boolean");
                     else
                     {
-                        printf("%s",toLowerCase(paramtype->type));
+                        printf("%s", toLowerCase(paramtype->type));
 
                     }
                     printf(",");
@@ -277,13 +388,13 @@ void print_table( table_header * root)
                 }
                 else
                 {
-                    if ( strcmp(paramtype->type,"StringArray") == 0 )
+                    if (strcmp(paramtype->type, "StringArray") == 0)
                         printf("String[]");
-                    else if ( strcmp(paramtype->type,"Bool") == 0 )
+                    else if (strcmp(paramtype->type, "Bool") == 0)
                         printf("boolean");
                     else
                     {
-                        printf("%s",toLowerCase(paramtype->type));
+                        printf("%s", toLowerCase(paramtype->type));
 
                     }
                     printf(")");
@@ -302,45 +413,45 @@ void print_table( table_header * root)
 
 
         sym_aux = root_aux->lista_sym;
-        while(sym_aux)
+        while (sym_aux)
         {
-            printf("%s\t",sym_aux->id);
+            printf("%s\t", sym_aux->id);
             paramtype = sym_aux->params;
-            while( paramtype )
+            while (paramtype)
             {
-                if( aux == 1)
+                if (aux == 1)
                 {
                     printf(",");
                 }
-                if ( aux == 0 )
+                if (aux == 0)
                 {
                     printf("(");
                     aux = 1;
                 }
-                if ( strcmp(paramtype->type,"StringArray") == 0 )
+                if (strcmp(paramtype->type, "StringArray") == 0)
                     printf("String[]");
-                else if ( strcmp(paramtype->type,"Bool") == 0 )
+                else if (strcmp(paramtype->type, "Bool") == 0)
                     printf("boolean");
                 else
-                    printf("%s",toLowerCase(paramtype->type));
+                    printf("%s", toLowerCase(paramtype->type));
 
                 paramtype = paramtype->next;
             }
-            if ( aux != 0 )
+            if (aux != 0)
             {
                 printf(")");
                 aux = 0;
             }
-            if ( strcmp(sym_aux->type,"Bool") == 0 )
+            if (strcmp(sym_aux->type, "Bool") == 0)
                 printf("\tboolean");
-            else if ( strcmp(sym_aux->type,"StringArray") == 0 )
+            else if (strcmp(sym_aux->type, "StringArray") == 0)
                 printf("\tString[]");
             else
-                printf("\t%s",toLowerCase(sym_aux->type));
+                printf("\t%s", toLowerCase(sym_aux->type));
 
-            if ( strcmp(sym_aux->flag,"") != 0 )
+            if (strcmp(sym_aux->flag, "") != 0)
             {
-                printf("\t%s",sym_aux->flag);
+                printf("\t%s", sym_aux->flag);
             }
             sym_aux = sym_aux->next;
             printf("\n");
@@ -353,14 +464,14 @@ void print_table( table_header * root)
 }
 
 
-int check_double_var(table_header * root , char * id )
+int check_double_var(table_header* root, char* id)
 {
-    sym_table_node * sym_tab = root->lista_sym;
+    sym_table_node* sym_tab = root->lista_sym;
 
 
-    while ( sym_tab )
+    while (sym_tab)
     {
-        if ( strcmp(sym_tab->id,id) == 0 )
+        if (strcmp(sym_tab->id, id) == 0)
         {
             return 1;
         }
@@ -370,27 +481,27 @@ int check_double_var(table_header * root , char * id )
 }
 
 
-char * toLowerCase( char * str )
+char* toLowerCase(char* str)
 {
-	int i;
-	for(i = 0; str[i]; i++){
+    int i;
+    for (i = 0; str[i]; i++) {
         if ((str[i] >= 65) && (str[i] <= 90))
             str[i] = str[i] + 32;
     }
-	return str;
+    return str;
 }
 
-void print_tables_params( table_header * root )
+void print_tables_params(table_header* root)
 {
-    table_header * root_aux = root;
+    table_header* root_aux = root;
 
-    while ( root_aux )
+    while (root_aux)
     {
         printf("%s\n", root_aux->head);
-        if ( root_aux->l_params != NULL )
+        if (root_aux->l_params != NULL)
         {
             printf("Entrei!\n");
-            printf("ID: %s\tTYPE: %s\n",root_aux->l_params->id,root_aux->l_params->type);
+            printf("ID: %s\tTYPE: %s\n", root_aux->l_params->id, root_aux->l_params->type);
         }
         else
             printf("Não tenho params.\n");
