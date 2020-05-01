@@ -110,9 +110,32 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
+
+char* search_symbol_type(ASTtree* node, table_header* table) {
+    int i;
+    sym_table_node* local_table;
+    printlocaltable(table);
+    while (table != NULL) {
+        local_table = table->lista_sym;
+        while (local_table != NULL) {
+            /*
+            printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+            printf("NODE Type: %sID: %s\n",node->type,node->value);*/
+            if (strcmp(local_table->id, node->value) == 0) {
+                return local_table->type;
+            }
+            local_table = local_table->next;
+        }
+        table = table->next;
+    }
+    return strdup("undef");
+}
+
+
+
 void add_annotations(ASTtree* bro_aux, table_header* table) {
     if (bro_aux != NULL) {
-        printf("Type: %s\nId: %s\n", bro_aux->type, bro_aux->value);
+        //printf("Type: %s\nId: %s\n",bro_aux->type,bro_aux->value);
         if (strcmp(bro_aux->type, "DecLit") == 0) {
             bro_aux->annotation = strdup("int");
 
@@ -125,12 +148,11 @@ void add_annotations(ASTtree* bro_aux, table_header* table) {
             bro_aux->annotation = strdup("int");
 
         }
-        /*
         else if (strcmp(bro_aux->type, "Id") == 0) {
             bro_aux->annotation = strdup(search_symbol_type(bro_aux, table));
 
         }
-
+        /*
         else if (strcmp(bro_aux->type, "Call") == 0) {
             add_annotations(bro_aux->children, table);
             bro_aux->annotation = check_call(bro_aux, table);
@@ -356,6 +378,111 @@ param_h* get_params(ASTtree* node)
     }
     return param;
 }
+
+void printlocaltable(table_header* root) {
+    table_header* root_aux = root;
+    sym_table_node* sym_aux;
+    param_h* paramtype;
+    int aux = 0;
+    int i = 0;
+    printf("===== ");
+    if (i == 0)
+        printf("Class ");
+    else
+        printf("Method ");
+    printf("%s", root_aux->head);
+    paramtype = root_aux->l_params;
+    if (paramtype != NULL)
+    {
+        printf("(");
+        while (paramtype)
+        {
+            if (paramtype->next != NULL)
+            {
+                if (strcmp(paramtype->type, "StringArray") == 0)
+                    printf("String[]");
+                else if (strcmp(paramtype->type, "Bool") == 0)
+                    printf("boolean");
+                else
+                {
+                    printf("%s", toLowerCase(paramtype->type));
+
+                }
+                printf(",");
+
+            }
+            else
+            {
+                if (strcmp(paramtype->type, "StringArray") == 0)
+                    printf("String[]");
+                else if (strcmp(paramtype->type, "Bool") == 0)
+                    printf("boolean");
+                else
+                {
+                    printf("%s", toLowerCase(paramtype->type));
+
+                }
+                printf(")");
+            }
+
+            paramtype = paramtype->next;
+        }
+
+    }
+    else
+    {
+        if (i != 0)
+            printf("()");
+    }
+    printf(" Symbol Table =====\n");
+
+
+    sym_aux = root_aux->lista_sym;
+    while (sym_aux)
+    {
+        printf("%s\t", sym_aux->id);
+        paramtype = sym_aux->params;
+        while (paramtype)
+        {
+            if (aux == 1)
+            {
+                printf(",");
+            }
+            if (aux == 0)
+            {
+                printf("(");
+                aux = 1;
+            }
+            if (strcmp(paramtype->type, "StringArray") == 0)
+                printf("String[]");
+            else if (strcmp(paramtype->type, "Bool") == 0)
+                printf("boolean");
+            else
+                printf("%s", toLowerCase(paramtype->type));
+
+            paramtype = paramtype->next;
+        }
+        if (aux != 0)
+        {
+            printf(")");
+            aux = 0;
+        }
+        if (strcmp(sym_aux->type, "Bool") == 0)
+            printf("\tboolean");
+        else if (strcmp(sym_aux->type, "StringArray") == 0)
+            printf("\tString[]");
+        else
+            printf("\t%s", toLowerCase(sym_aux->type));
+
+        if (strcmp(sym_aux->flag, "") != 0)
+        {
+            printf("\t%s", sym_aux->flag);
+        }
+        sym_aux = sym_aux->next;
+        printf("\n");
+    }
+}
+
 
 void print_table(table_header* root)
 {
