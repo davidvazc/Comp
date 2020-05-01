@@ -110,48 +110,47 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
-char* troca(char* tipo){
-    if(strcmp(tipo, "Int") == 0){
+char* troca(char* tipo) {
+    if (strcmp(tipo, "Int") == 0) {
         return ("int");
     }
     //adicionar os outros tipos
     return tipo;
 }
 
-char* search_symbol_type(ASTtree* node, table_header* table) {
-    int i,j;
+char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
+    int i, j;
     char resp[40] = "(";
     char right[] = ")";
-    char *aux;
-    sym_table_node *local_table;
+    char* aux;
+    sym_table_node* local_table;
     //printlocaltable(table);
-    while (table != NULL) {
-        local_table = table->lista_sym;
-        if (strcmp(local_table->id, node->value) == 0){
+    local_table = table->lista_sym;
+
+    while (local_table != NULL) {
+        /*
+        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
+        if (strcmp(local_table->id, node->value) == 0) {
+            if (table == root) {
                 strcat(resp, troca(local_table->type));
                 strcat(resp, right);
                 aux = strdup(resp);
                 return (aux);
-            
+            }
+            return troca(local_table->type);
         }
         local_table = local_table->next;
-        while (local_table != NULL) {
-            /*
-            printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
-            printf("NODE Type: %sID: %s\n",node->type,node->value);*/
-            if (strcmp(local_table->id, node->value) == 0) {
-                return troca(local_table->type);
-            }
-            local_table = local_table->next;
-        }
-        table = table->next;
+    }
+    if (table != root) {
+        return strdup(search_symbol_type(node, root, root));
     }
     return strdup("undef");
 }
 
 
 
-void add_annotations(ASTtree* bro_aux, table_header* table) {
+void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) {
     char* aux;
     if (bro_aux != NULL)
     {
@@ -169,12 +168,12 @@ void add_annotations(ASTtree* bro_aux, table_header* table) {
 
         }
         else if (strcmp(bro_aux->type, "Id") == 0) {
-            aux = search_symbol_type(bro_aux, table);
+            aux = search_symbol_type(bro_aux, table, root);
             if (strcmp(aux, "StringArray") == 0)
                 bro_aux->annotation = strdup("String[]");
             else
                 bro_aux->annotation = strdup(aux);
-            
+
         }
         /*
         else if (strcmp(bro_aux->type, "Call") == 0) {
@@ -264,10 +263,10 @@ void add_annotations(ASTtree* bro_aux, table_header* table) {
 
         }*/
         else {
-            add_annotations(bro_aux->child, table);
+            add_annotations(bro_aux->child, table, root);
 
         }
-        add_annotations(bro_aux->brother, table);
+        add_annotations(bro_aux->brother, table, root);
     }
 }
 
@@ -350,7 +349,7 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
                             add_sym_to_table(table_root, bro_aux->child->brother->value, bro_aux->child->type, NULL, "", 2, 1);
                             //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value);
                         }
-                        add_annotations(bro_aux, table_root);
+                        add_annotations(bro_aux, table_aux, table_root);
                         bro_aux = bro_aux->brother;
                     }
                 }
