@@ -110,19 +110,37 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
+char* troca(char* tipo){
+    if(strcmp(tipo, "Int") == 0){
+        return ("int");
+    }
+    //adicionar os outros tipos
+    return tipo;
+}
 
 char* search_symbol_type(ASTtree* node, table_header* table) {
-    int i;
-    sym_table_node* local_table;
-    printlocaltable(table);
+    int i,j;
+    char resp[40] = "(";
+    char right[] = ")";
+    char *aux;
+    sym_table_node *local_table;
+    //printlocaltable(table);
     while (table != NULL) {
         local_table = table->lista_sym;
+        if (strcmp(local_table->id, node->value) == 0){
+                strcat(resp, troca(local_table->type));
+                strcat(resp, right);
+                aux = strdup(resp);
+                return (aux);
+            
+        }
+        local_table = local_table->next;
         while (local_table != NULL) {
             /*
             printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
             printf("NODE Type: %sID: %s\n",node->type,node->value);*/
             if (strcmp(local_table->id, node->value) == 0) {
-                return local_table->type;
+                return troca(local_table->type);
             }
             local_table = local_table->next;
         }
@@ -134,7 +152,9 @@ char* search_symbol_type(ASTtree* node, table_header* table) {
 
 
 void add_annotations(ASTtree* bro_aux, table_header* table) {
-    if (bro_aux != NULL) {
+    char* aux;
+    if (bro_aux != NULL)
+    {
         //printf("Type: %s\nId: %s\n",bro_aux->type,bro_aux->value);
         if (strcmp(bro_aux->type, "DecLit") == 0) {
             bro_aux->annotation = strdup("int");
@@ -149,8 +169,12 @@ void add_annotations(ASTtree* bro_aux, table_header* table) {
 
         }
         else if (strcmp(bro_aux->type, "Id") == 0) {
-            bro_aux->annotation = strdup(search_symbol_type(bro_aux, table));
-
+            aux = search_symbol_type(bro_aux, table);
+            if (strcmp(aux, "StringArray") == 0)
+                bro_aux->annotation = strdup("String[]");
+            else
+                bro_aux->annotation = strdup(aux);
+            
         }
         /*
         else if (strcmp(bro_aux->type, "Call") == 0) {
