@@ -175,6 +175,10 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
                 bro_aux->annotation = strdup(aux);
 
         }
+        else if (strcmp(bro_aux->type, "VarDecl") == 0) {
+            add_annotations(bro_aux->brother, table, root);
+
+        }
         /*
         else if (strcmp(bro_aux->type, "Call") == 0) {
             add_annotations(bro_aux->children, table);
