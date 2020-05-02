@@ -110,6 +110,8 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
+
+/*Escrever o tipo correto na arvore anotada*/
 char* troca(char* tipo) {
     if (strcmp(tipo, "Int") == 0) {
         return ("int");
@@ -127,6 +129,9 @@ char* troca(char* tipo) {
     return tipo;
 }
 
+
+
+/*Pesquisar um simbolo na tabela local e de seguida na gloval*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
     int i, j;
     char resp[40] = "(";
@@ -157,6 +162,8 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
     return strdup("undef");
 }
 
+
+/*Pesquisar o nome de uma tabela para ver se e funcao*/
 table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
     //printlocaltable(table);
 
@@ -174,6 +181,7 @@ table_header* search_symbol_table(char* id, table_header* table, table_header* r
 
 
 
+/*Escrever as anotaçoes na arvore*/
 void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) {
     char* aux;
     if (bro_aux != NULL)
@@ -203,76 +211,53 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
 
         else if (strcmp(bro_aux->type, "Call") == 0) {
             add_annotations(bro_aux->child, table, root);
-            bro_aux->annotation = check_call(bro_aux, table, root);
+            bro_aux->annotation = checkCall(bro_aux, table, root); //retorna tipo da funcao
 
         }
-        /*
-        else if (strcmp(bro_aux->type, "Store") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_store_op(bro_aux);
 
-        }
         else if (strcmp(bro_aux->type, "Not") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_not_op(bro_aux);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkNot(bro_aux); //retorna tipo do filho
+
+        }
+
+        else if (strcmp(bro_aux->type, "Eq") == 0 || strcmp(bro_aux->type, "Ne") == 0) {
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkEquality(bro_aux);  //retorna boolean
 
         }
         else if (strcmp(bro_aux->type, "Lt") == 0 || strcmp(bro_aux->type, "Gt") == 0 || strcmp(bro_aux->type, "Le") == 0 || strcmp(bro_aux->type, "Ge") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_relational_op(bro_aux);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkRelational(bro_aux); //retorna boolean
 
         }
-        else if (strcmp(bro_aux->type, "Eq") == 0 || strcmp(bro_aux->type, "Ne") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_equality_op(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Or") == 0 || strcmp(bro_aux->type, "And") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_logical_op(bro_aux);
+        else if (strcmp(bro_aux->type, "Or") == 0 || strcmp(bro_aux->type, "And") == 0 || strcmp(bro_aux->type, "Xor") == 0) {
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkLogical(bro_aux);  //retorna boolean
 
         }
         else if (strcmp(bro_aux->type, "Mul") == 0 || strcmp(bro_aux->type, "Div") == 0 || strcmp(bro_aux->type, "Mod") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_multiplicative_op(bro_aux);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkMultiplicative(bro_aux); //retorna o tipo da expressao a ser multiplicada
 
         }
-        else if (strcmp(bro_aux->type, "Comma") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_comma_op(bro_aux);
 
-        }
         else if (strcmp(bro_aux->type, "Plus") == 0 || strcmp(bro_aux->type, "Minus") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_unary_op(bro_aux);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkUnary(bro_aux);  //retorna o tipo da expressao a ser convertida
 
         }
         else if (strcmp(bro_aux->type, "Add") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_add_op(bro_aux, 0);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkAdd(bro_aux);  //retorna o tipo da expressao a ser adicionada
 
         }
         else if (strcmp(bro_aux->type, "Sub") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_sub_op(bro_aux);
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkSub(bro_aux);
 
         }
-        else if (strcmp(bro_aux->type, "Deref") == 0) {
-            if (bro_aux->token != NULL) {
-                add_annotations((bro_aux->children)->children, table);
-                bro_aux->annotation = check_deref_array_op(bro_aux);
-            }
-            else {
-                add_annotations(bro_aux->children, table);
-                bro_aux->annotation = check_deref_op(bro_aux);
-            }
-
-        }
-        else if (strcmp(bro_aux->type, "Addr") == 0) {
-            add_annotations(bro_aux->children, table);
-            bro_aux->annotation = check_addr_op(bro_aux);
-
-        }
+        /*
         else if (strcmp(bro_aux->type, "If") == 0) {
             add_annotations(bro_aux->children, table);
             check_if(bro_aux);
@@ -287,7 +272,37 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
             add_annotations(bro_aux->children, table);
             check_return(bro_aux, table);
 
-        }*/
+        }
+        NOS PRECISAMOS DE IMPLEMENTAR
+        else if (strcmp(bro_aux->type, "While") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Assign") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Length") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "ParseArgs") == 0) {
+            add_annotations(bro_aux->children, table);
+            check_for(bro_aux);
+
+        }
+        Assign(2) Or(2) And(2) Eq(2) Ne(2) Lt(2) Gt(2) Le(2) Ge(2) Add(2)
+Sub(2) Mul(2) Div(2) Mod(2) Lshift(2) Rshift(2) Xor(2) Not(1) Minus(1)
+Plus(1) Length(1) Call(>=1) ParseArgs(2)
+*/
         else {
             add_annotations(bro_aux->child, table, root);
 
@@ -319,7 +334,6 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
             {
                 child_aux = root_aux->child;
                 //printf("Type: %s\nId: %s\n",child_aux->type,child_aux->brother->value);
-                //if ( check_double_var(table_root,child_aux->brother->value) == 0)
                 add_sym_to_table(table_root, child_aux->brother->value, child_aux->type, NULL, "", 1, 1);
 
 
@@ -427,6 +441,11 @@ param_h* get_params(ASTtree* node)
     }
     return param;
 }
+
+
+
+//========================== FUNCOES PRINT =================================================
+
 
 void printlocaltable(table_header* root) {
     table_header* root_aux = root;
@@ -649,23 +668,6 @@ void print_table(table_header* root)
 }
 
 
-int check_double_var(table_header* root, char* id)
-{
-    sym_table_node* sym_tab = root->lista_sym;
-
-
-    while (sym_tab)
-    {
-        if (strcmp(sym_tab->id, id) == 0)
-        {
-            return 1;
-        }
-        sym_tab = sym_tab->next;
-    }
-    return 0;
-}
-
-
 char* toLowerCase(char* str)
 {
     int i;
@@ -697,7 +699,11 @@ void print_tables_params(table_header* root)
 }
 
 
-char* check_call(ASTtree* node, table_header* table, table_header* root) {
+
+//======================FUNCOES CHECK=================================================
+
+
+char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
     int func_params, node_params = 0, error = 0;
@@ -718,10 +724,142 @@ char* check_call(ASTtree* node, table_header* table, table_header* root) {
             params = params->brother;
         }
     }
+    //FALTA VERIFICAR ERROS
 
     if (error == 0) {
         return troca(strdup(return_type));
     }
 
     return strdup("undef");
+}
+
+
+
+
+
+
+char* checkNot(ASTtree* node) {
+
+    char type[1024];
+
+    strcpy(type, (node->child)->annotation);
+    //FALTA VERIFICAR ERROS
+
+    return troca(strdup(type));
+}
+
+
+
+
+
+
+char* checkEquality(ASTtree* node) {
+
+    /* NOTE: The rules are slightly different from those of the relational operators */
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+    //FALTA VERIFICAR ERROS
+
+
+    return strdup("boolean");
+}
+
+
+
+
+
+char* checkRelational(ASTtree* node) {
+
+    /* NOTE: The rules are slightly different from those of the relational operators */
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+    //FALTA VERIFICAR ERROS
+
+
+    return strdup("boolean");
+}
+
+
+
+char* checkLogical(ASTtree* node) {
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    return strdup("boolean");
+}
+
+
+
+
+char* checkMultiplicative(ASTtree* node) {
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    return troca(strdup(first_annotation));
+}
+
+
+
+
+char* checkUnary(ASTtree* node) {
+    char first_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+
+    return troca(strdup(first_annotation));
+}
+
+
+
+
+char* checkAdd(ASTtree* node) {
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    return troca(strdup(first_annotation));
+}
+
+
+
+char* checkSub(ASTtree* node) {
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    return troca(strdup(first_annotation));
 }

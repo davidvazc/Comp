@@ -56,8 +56,15 @@ void printlocaltable(table_header*);
 void add_annotations(ASTtree*, table_header*, table_header*);
 char* search_symbol_type(ASTtree*, table_header*, table_header*);
 table_header* search_symbol_table(char*, table_header*, table_header*);
-char* check_call(ASTtree*, table_header*, table_header*);
-
+char* checkCall(ASTtree*, table_header*, table_header*);
+char* checkNot(ASTtree*);
+char* checkEquality(ASTtree*);
+char* checkRelational(ASTtree*);
+char* checkLogical(ASTtree*);
+char* checkMultiplicative(ASTtree*);
+char* checkUnary(ASTtree*);
+char* checkAdd(ASTtree*);
+char* checkSub(ASTtree*);
 
 
 #endif
