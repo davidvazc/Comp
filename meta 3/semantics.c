@@ -125,6 +125,9 @@ char* troca(char* tipo) {
     if (strcmp(tipo, "Double") == 0) {
         return ("double");
     }
+    if (strcmp(tipo, "Void") == 0) {
+        return ("void");
+    }
     //adicionar os outros tipos
     return tipo;
 }
@@ -473,7 +476,7 @@ void printlocaltable(table_header* root) {
                     printf("boolean");
                 else
                 {
-                    printf("%s", toLowerCase(paramtype->type));
+                    printf("%s", troca(paramtype->type));
 
                 }
                 printf(",");
@@ -487,7 +490,7 @@ void printlocaltable(table_header* root) {
                     printf("boolean");
                 else
                 {
-                    printf("%s", toLowerCase(paramtype->type));
+                    printf("%s", troca(paramtype->type));
 
                 }
                 printf(")");
@@ -526,7 +529,7 @@ void printlocaltable(table_header* root) {
             else if (strcmp(paramtype->type, "Bool") == 0)
                 printf("boolean");
             else
-                printf("%s", toLowerCase(paramtype->type));
+                printf("%s", troca(paramtype->type));
 
             paramtype = paramtype->next;
         }
@@ -540,7 +543,7 @@ void printlocaltable(table_header* root) {
         else if (strcmp(sym_aux->type, "StringArray") == 0)
             printf("\tString[]");
         else
-            printf("\t%s", toLowerCase(sym_aux->type));
+            printf("\t%s", troca(sym_aux->type));
 
         if (strcmp(sym_aux->flag, "") != 0)
         {
@@ -578,29 +581,14 @@ void print_table(table_header* root)
             {
                 if (paramtype->next != NULL)
                 {
-                    if (strcmp(paramtype->type, "StringArray") == 0)
-                        printf("String[]");
-                    else if (strcmp(paramtype->type, "Bool") == 0)
-                        printf("boolean");
-                    else
-                    {
-                        printf("%s", toLowerCase(paramtype->type));
-
-                    }
+                    printf("%s", troca(paramtype->type));
                     printf(",");
 
                 }
                 else
                 {
-                    if (strcmp(paramtype->type, "StringArray") == 0)
-                        printf("String[]");
-                    else if (strcmp(paramtype->type, "Bool") == 0)
-                        printf("boolean");
-                    else
-                    {
-                        printf("%s", toLowerCase(paramtype->type));
 
-                    }
+                    printf("%s", troca(paramtype->type));
                     printf(")");
                 }
 
@@ -632,12 +620,7 @@ void print_table(table_header* root)
                     printf("(");
                     aux = 1;
                 }
-                if (strcmp(paramtype->type, "StringArray") == 0)
-                    printf("String[]");
-                else if (strcmp(paramtype->type, "Bool") == 0)
-                    printf("boolean");
-                else
-                    printf("%s", toLowerCase(paramtype->type));
+                printf("%s", troca(paramtype->type));
 
                 paramtype = paramtype->next;
             }
@@ -646,12 +629,7 @@ void print_table(table_header* root)
                 printf(")");
                 aux = 0;
             }
-            if (strcmp(sym_aux->type, "Bool") == 0)
-                printf("\tboolean");
-            else if (strcmp(sym_aux->type, "StringArray") == 0)
-                printf("\tString[]");
-            else
-                printf("\t%s", toLowerCase(sym_aux->type));
+            printf("\t%s", troca(sym_aux->type));
 
             if (strcmp(sym_aux->flag, "") != 0)
             {
@@ -668,35 +646,6 @@ void print_table(table_header* root)
 }
 
 
-char* toLowerCase(char* str)
-{
-    int i;
-    for (i = 0; str[i]; i++) {
-        if ((str[i] >= 65) && (str[i] <= 90))
-            str[i] = str[i] + 32;
-    }
-    return str;
-}
-
-void print_tables_params(table_header* root)
-{
-    table_header* root_aux = root;
-
-    while (root_aux)
-    {
-        printf("%s\n", root_aux->head);
-        if (root_aux->l_params != NULL)
-        {
-            printf("Entrei!\n");
-            printf("ID: %s\tTYPE: %s\n", root_aux->l_params->id, root_aux->l_params->type);
-        }
-        else
-            printf("Não tenho params.\n");
-
-        root_aux = root_aux->next;
-    }
-
-}
 
 
 
