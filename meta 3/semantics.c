@@ -257,49 +257,44 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
         }
         else if (strcmp(bro_aux->type, "Sub") == 0) {
             add_annotations(bro_aux->child, table, root);
-            bro_aux->annotation = checkSub(bro_aux);
+            bro_aux->annotation = checkSub(bro_aux); //retorna o tipo da expressao a ser subtraida
 
         }
-        /*
+        else if (strcmp(bro_aux->type, "Assign") == 0) {
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkAssign(bro_aux); //retorna o tipo da expressao a ser atribuida
+
+        }
+        else if (strcmp(bro_aux->type, "ParseArgs") == 0) {
+            add_annotations(bro_aux->child, table, root);
+            bro_aux->annotation = checkParseArgs(bro_aux); //retorna int
+
+        }
+        /* FUNCOES DE ERRO
         else if (strcmp(bro_aux->type, "If") == 0) {
             add_annotations(bro_aux->children, table);
-            check_if(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "For") == 0) {
-            add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
+            checkIf(bro_aux);
 
         }
         else if (strcmp(bro_aux->type, "Return") == 0) {
             add_annotations(bro_aux->children, table);
-            check_return(bro_aux, table);
+            checkReturn(bro_aux, table);
 
         }
         NOS PRECISAMOS DE IMPLEMENTAR
         else if (strcmp(bro_aux->type, "While") == 0) {
             add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Assign") == 0) {
-            add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
+            checkWhile(bro_aux);
 
         }
         else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
             add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
+            checkShift(bro_aux);
 
         }
         else if (strcmp(bro_aux->type, "Length") == 0) {
             add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "ParseArgs") == 0) {
-            add_annotations(bro_aux->children, table);
-            check_for(bro_aux);
+            checkLength(bro_aux);
 
         }
         Assign(2) Or(2) And(2) Eq(2) Ne(2) Lt(2) Gt(2) Le(2) Ge(2) Add(2)
@@ -811,4 +806,26 @@ char* checkSub(ASTtree* node) {
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
     return troca(strdup(first_annotation));
+}
+
+
+char* checkAssign(ASTtree* node) {
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    return troca(strdup(first_annotation));
+}
+
+
+
+char* checkParseArgs(ASTtree* node) {
+
+
+    return strdup("int");
 }
