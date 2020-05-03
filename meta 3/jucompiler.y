@@ -125,14 +125,14 @@ ASTtree* root = NULL, *tmp = NULL, *tmp1 = NULL, *tmp2 = NULL, *tmp3 = NULL, *tm
 
 Program: 
     CLASS ID LBRACE Program_Aux RBRACE                              {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("Id",$2);
-                                                                        root = createNode("Program", "NULL"); 
+                                                                        {tmp = createNode(line_y,col_y,"Id",$2);
+                                                                        root = createNode(line_y,col_y,"Program", "NULL"); 
                                                                         appendBrother($4, tmp); 
                                                                         appendChild(tmp, root); 
                                                                     }}
     | CLASS ID LBRACE RBRACE                                        {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("Id",$2);
-                                                                        root = createNode("Program", "NULL");
+                                                                        {tmp = createNode(line_y,col_y,"Id",$2);
+                                                                        root = createNode(line_y,col_y,"Program", "NULL");
                                                                         appendChild(tmp, root); 
                                                                     }}         
     ;
@@ -150,7 +150,7 @@ Program_Aux:
 /* MethodDecl −→ PUBLIC STATIC MethodHeader MethodBody */
 MethodDecl: 
     PUBLIC STATIC MethodHeader MethodBody                           {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("MethodDecl", "NULL"); 
+                                                                        {tmp = createNode(line_y,col_y,"MethodDecl", "NULL"); 
                                                                         appendChild($3, tmp); 
                                                                         appendBrother($4, $3); 
                                                                         $$ = tmp;
@@ -162,11 +162,11 @@ MethodDecl:
 /* FieldDecl -> error SEMICOLON */
 FieldDecl: 
     PUBLIC STATIC Type ID FieldDecl_aux SEMICOLON			        {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("FieldDecl","NULL"); 
+                                                                        {tmp = createNode(line_y,col_y,"FieldDecl","NULL"); 
                                                                         appendChild($3,tmp); 
-                                                                        appendBrother(createNode("Id",$4),tmp->child); 
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$4),tmp->child); 
                                                                         appendBrother($5, tmp);
-                                                                        createNode_Type($3,$5); 
+                                                                        createNode_Type(line_y,col_y,$3,$5); 
                                                                         $$ = tmp;
                                                                     }}
 	| error SEMICOLON												{if(erros_sintaxe == 0) {$$ = NULL;}}
@@ -175,55 +175,55 @@ FieldDecl:
 
 FieldDecl_aux: 
     FieldDecl_aux COMMA ID	                                        {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("FieldDecl", "NULL"); 
-                                                                        appendChild(createNode("Id",$3),tmp); 
+                                                                        {tmp = createNode(line_y,col_y,"FieldDecl", "NULL"); 
+                                                                        appendChild(createNode(line_y,col_y,"Id",$3),tmp); 
                                                                         appendBrother(tmp, $1); 
                                                                         $$ = $1;
                                                                     }}
-	| /* empty */  								                    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+	| /* empty */  								                    {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"NULL", "NULL");}}
 	;
 
 
 /*Type −→ BOOL | INT | DOUBLE*/
 Type: 
-    BOOL                                                             {if(erros_sintaxe == 0) {$$ = createNode("Bool", "NULL"); strcpy(ID_type,"Bool"); }}   
-    | INT                                                            {if(erros_sintaxe == 0) {$$ = createNode("Int", "NULL"); strcpy(ID_type,"Int");}}                
-    | DOUBLE                                                         {if(erros_sintaxe == 0) {$$ = createNode("Double", "NULL"); strcpy(ID_type,"Double");}}
+    BOOL                                                             {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"Bool", "NULL"); strcpy(ID_type,"Bool"); }}   
+    | INT                                                            {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"Int", "NULL"); strcpy(ID_type,"Int");}}                
+    | DOUBLE                                                         {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"Double", "NULL"); strcpy(ID_type,"Double");}}
     ;
 
 
 /* MethodHeader -> ( Type | VOID ) ID LPAR [ FormalParams ] RPAR */
 MethodHeader: 
     Type ID LPAR FormalParams RPAR                                  {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("MethodHeader", "NULL");
+                                                                        {tmp = createNode(line_y,col_y,"MethodHeader", "NULL");
                                                                         appendChild($1, tmp);
-                                                                        tmp1 = createNode("MethodParams","NULL");
-                                                                        appendBrother(createNode("Id",$2),tmp->child);
+                                                                        tmp1 = createNode(line_y,col_y,"MethodParams","NULL");
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),tmp->child);
                                                                         appendBrother(tmp1, $1);
                                                                         appendChild($4, tmp1);
                                                                         $$ = tmp;
                                                                     }}
     | Type ID LPAR RPAR                                             {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("MethodHeader", "NULL");
+                                                                        {tmp = createNode(line_y,col_y,"MethodHeader", "NULL");
                                                                         appendChild($1, tmp);
-                                                                        appendBrother(createNode("Id",$2),tmp->child);
-                                                                        appendBrother(createNode("MethodParams", "NULL"), $1);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),tmp->child);
+                                                                        appendBrother(createNode(line_y,col_y,"MethodParams", "NULL"), $1);
                                                                         $$ = tmp;
                                                                     }}
 	| VOID ID LPAR FormalParams RPAR                                {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("MethodHeader", "NULL");
-                                                                        appendChild(createNode("Void", "NULL"), tmp);
-                                                                        tmp1 = createNode("MethodParams","NULL");
-                                                                        appendBrother(createNode("Id",$2),tmp->child);
+                                                                        {tmp = createNode(line_y,col_y,"MethodHeader", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Void", "NULL"), tmp);
+                                                                        tmp1 = createNode(line_y,col_y,"MethodParams","NULL");
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),tmp->child);
                                                                         appendBrother(tmp1, tmp->child);
                                                                         appendChild($4, tmp1);
                                                                         $$ = tmp;
                                                                     }}
     | VOID ID LPAR RPAR                                             {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("MethodHeader", "NULL");
-                                                                        appendChild(createNode("Void", "NULL"), tmp);
-                                                                        appendBrother(createNode("Id",$2),tmp->child);
-                                                                        appendBrother(createNode("MethodParams", "NULL"), tmp->child);
+                                                                        {tmp = createNode(line_y,col_y,"MethodHeader", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Void", "NULL"), tmp);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),tmp->child);
+                                                                        appendBrother(createNode(line_y,col_y,"MethodParams", "NULL"), tmp->child);
                                                                         $$ = tmp;
                                                                     }}
 	;
@@ -233,22 +233,22 @@ MethodHeader:
 /* FormalParams -> STRING LSQ RSQ ID */
 FormalParams: 
     Type ID FormalParams_Aux                                        {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("ParamDecl", "NULL");
+                                                                        {tmp = createNode(line_y,col_y,"ParamDecl", "NULL");
                                                                         appendChild($1, tmp);
-                                                                        appendBrother(createNode("Id",$2),$1);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),$1);
                                                                         appendBrother($3,tmp);
                                                                         $$ = tmp;
                                                                     }}
 	| STRING LSQ RSQ ID                                             {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("ParamDecl", "NULL");
-                                                                        appendChild(createNode("StringArray", "NULL"),tmp);
-                                                                        appendBrother(createNode("Id",$4),tmp->child);
+                                                                        tmp = createNode(line_y,col_y,"ParamDecl", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"StringArray", "NULL"),tmp);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$4),tmp->child);
                                                                         $$ = tmp;
                                                                     }}
     | Type ID                                                       {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("ParamDecl", "NULL");
+                                                                        tmp = createNode(line_y,col_y,"ParamDecl", "NULL");
                                                                         appendChild($1, tmp);
-                                                                        appendBrother(createNode("Id",$2),$1);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),$1);
                                                                         $$ = tmp;
                                                                     }}
 	;
@@ -256,15 +256,15 @@ FormalParams:
 
 FormalParams_Aux: 
     COMMA Type ID                                                   {if(erros_sintaxe == 0) {
-                                                                        tmp = createNode("ParamDecl", "NULL");
+                                                                        tmp = createNode(line_y,col_y,"ParamDecl", "NULL");
                                                                         appendChild($2, tmp);
-                                                                        appendBrother(createNode("Id",$3),$2);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$3),$2);
                                                                         $$ = tmp;
                                                                     }}
 	| COMMA Type ID FormalParams_Aux                                {if(erros_sintaxe == 0) {
-                                                                        tmp = createNode("ParamDecl", "NULL");
+                                                                        tmp = createNode(line_y,col_y,"ParamDecl", "NULL");
                                                                         appendChild($2, tmp);
-                                                                        appendBrother(createNode("Id",$3),$2);
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$3),$2);
                                                                         appendBrother($4,tmp);
                                                                         $$ = tmp;
                                                                     }}
@@ -274,7 +274,7 @@ FormalParams_Aux:
 /* MethodBody -> LBRACE { Statement | VarDecl } RBRACE */
 MethodBody: 
     LBRACE MethodBody_Aux RBRACE                                    {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("MethodBody", "NULL");
+                                                                        tmp = createNode(line_y,col_y,"MethodBody", "NULL");
                                                                         appendChild($2, tmp);
                                                                         $$ = tmp;
                                                                     }}                         
@@ -283,18 +283,18 @@ MethodBody:
 MethodBody_Aux:                                     
     MethodBody_Aux Statement                                        {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
     | MethodBody_Aux VarDecl                                        {if(erros_sintaxe == 0) { appendBrother($2, $1); $$ = $1;}}
-    |/* empty */                                                     {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+    |/* empty */                                                     {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"NULL", "NULL");}}
     ;
 
 
 /* VarDecl -> Type ID { COMMA ID } SEMICOLON */
 VarDecl: 
     Type ID VarDecl_Aux SEMICOLON                                   {if(erros_sintaxe == 0)
-                                                                        {tmp = createNode("VarDecl","NULL"); 
+                                                                        {tmp = createNode(line_y,col_y,"VarDecl","NULL"); 
                                                                         appendChild($1,tmp); 
-                                                                        appendBrother(createNode("Id",$2),tmp->child); 
+                                                                        appendBrother(createNode(line_y,col_y,"Id",$2),tmp->child); 
                                                                         appendBrother($3, tmp);
-                                                                        createNode_Type($1,$3); 
+                                                                        createNode_Type(line_y,col_y,$1,$3); 
                                                                         $$ = tmp;
                                                                     }}
 
@@ -302,12 +302,12 @@ VarDecl:
 
 VarDecl_Aux: 
 	VarDecl_Aux COMMA ID  								            {if(erros_sintaxe == 0) 
-                                                                        {tmp = createNode("VarDecl", "NULL"); 
-                                                                        appendChild(createNode("Id",$3),tmp); 
+                                                                        {tmp = createNode(line_y,col_y,"VarDecl", "NULL"); 
+                                                                        appendChild(createNode(line_y,col_y,"Id",$3),tmp); 
                                                                         appendBrother(tmp, $1); 
                                                                         $$ = $1;
                                                                     }}
-    | /* empty */  								                    {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}                  
+    | /* empty */  								                    {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"NULL", "NULL");}}                  
 	;
 
 /*
@@ -324,7 +324,7 @@ Statement:
     LBRACE Statement_Aux RBRACE                                     {if (erros_sintaxe == 0) {
                                                                         if ($2 != NULL){  
                                                                             if ($2->brother != NULL){
-                                                                                tmp = createNode("Block","NULL");
+                                                                                tmp = createNode(line_y,col_y,"Block","NULL");
 																				appendChild($2, tmp); 
                                                                                 $$ = tmp;
                                                                             } else {
@@ -336,89 +336,89 @@ Statement:
                                                                     }}
     | LBRACE RBRACE                                                 {if (erros_sintaxe == 0) {$$ = NULL;}}
 	| IF LPAR Expr RPAR Statement %prec NO_ELSE                     {if(erros_sintaxe == 0) {    
-                                                                        tmp = createNode("If","NULL");
+                                                                        tmp = createNode(line_y,col_y,"If","NULL");
                                                                         appendChild($3, tmp);
                                                                         if ( $5 != NULL ){
                                                                             if ( $5->brother != NULL ){
-                                                                                tmp1 = createNode("Block", "NULL");
+                                                                                tmp1 = createNode(line_y,col_y,"Block", "NULL");
                                                                                 appendBrother(tmp1, $3);
                                                                                 appendChild($5, tmp1);
-                                                                                tmp2 = createNode("Block","NULL");
+                                                                                tmp2 = createNode(line_y,col_y,"Block","NULL");
                                                                                 appendChild(tmp2, $$);
                                                                             } else {
                                                                                 appendBrother($5, $3);
-                                                                                tmp2 = createNode("Block","NULL");
+                                                                                tmp2 = createNode(line_y,col_y,"Block","NULL");
                                                                                 appendBrother(tmp2, $5);
                                                                             } 
                                                                         } else {
-                                                                            tmp1 = createNode("Block", "NULL");
+                                                                            tmp1 = createNode(line_y,col_y,"Block", "NULL");
                                                                             appendBrother(tmp1, $3);
-                                                                            tmp2 = createNode("Block","NULL");
+                                                                            tmp2 = createNode(line_y,col_y,"Block","NULL");
                                                                             appendBrother(tmp2, $3);
                                                                         }
                                                                         $$ = tmp;                                                                                                                          
                                                                     }} 
     | IF LPAR Expr RPAR Statement ELSE Statement                    {if(erros_sintaxe == 0) {    
-                                                                        tmp = createNode("If","NULL");
+                                                                        tmp = createNode(line_y,col_y,"If","NULL");
                                                                         appendChild( $3, tmp);
                                                                         if ( $5 != NULL ){
                                                                             if ( $5->brother != NULL ){
-                                                                                tmp1 = createNode("Block", "NULL");
+                                                                                tmp1 = createNode(line_y,col_y,"Block", "NULL");
                                                                                 appendBrother(tmp1, $3);
                                                                                 appendChild($5, tmp1);
                                                                             } else {
                                                                                 appendBrother($5, $3);
                                                                             } 
                                                                         } else {
-                                                                            tmp1 = createNode("Block", "NULL");
+                                                                            tmp1 = createNode(line_y,col_y,"Block", "NULL");
                                                                             appendBrother(tmp1, $3);
                                                                         }
                                                                         if ( $7 != NULL ){
                                                                             if ( $7->brother != NULL ){
-                                                                                tmp2 = createNode("Block", "NULL");
+                                                                                tmp2 = createNode(line_y,col_y,"Block", "NULL");
                                                                                 appendBrother(tmp2, $3);
                                                                                 appendChild($7, tmp2);
                                                                             } else {
                                                                                 appendBrother($7, $3);
                                                                             } 
                                                                         } else {
-                                                                            tmp1 = createNode("Block", "NULL");
+                                                                            tmp1 = createNode(line_y,col_y,"Block", "NULL");
                                                                             appendBrother(tmp1, $3);
                                                                         }
                                                                         
                                                                         $$ = tmp;                                                                                                                          
                                                                     }}                                        
 	| WHILE LPAR Expr RPAR Statement                                {if(erros_sintaxe == 0) {    
-                                                                        tmp = createNode("While","NULL");
+                                                                        tmp = createNode(line_y,col_y,"While","NULL");
                                                                         appendChild( $3, tmp);
                                                                         if ( $5 != NULL){
 							                                                if ($5->brother != NULL){
-							                                                    tmp1 = createNode("Block","NULL");
+							                                                    tmp1 = createNode(line_y,col_y,"Block","NULL");
 							                                                    appendChild($5,tmp1);
 							                                                    appendBrother(tmp1,$3);
 							                                                } else {
 							                                                    appendBrother($5,$3);
 							                                                }
 							                                            } else {
-							                                                tmp1 = createNode("Block","NULL");
+							                                                tmp1 = createNode(line_y,col_y,"Block","NULL");
 							                                                appendBrother(tmp1,$3);
 							                                            }
                                                                         $$ = tmp;                                                                                            
                                                                     }}
-	|   RETURN Expr SEMICOLON                                       {if(erros_sintaxe == 0) {$$ = createNode("Return", "NULL"); appendChild($2, $$);}}
-    |   RETURN SEMICOLON                                            {if(erros_sintaxe == 0) {$$ = createNode("Return", "NULL");}}
+	|   RETURN Expr SEMICOLON                                       {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"Return", "NULL"); appendChild($2, $$);}}
+    |   RETURN SEMICOLON                                            {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"Return", "NULL");}}
 	|   SEMICOLON                                                   {if(erros_sintaxe == 0) {$$ = NULL;}}
     |   MethodInvocation SEMICOLON                                  {if(erros_sintaxe == 0) {$$ = $1;}}
     |   Assignment SEMICOLON                                        {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs SEMICOLON                                         {if(erros_sintaxe == 0) {$$ = $1;}}
 	|   PRINT LPAR Expr RPAR SEMICOLON                              {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("Print", "NULL");
+                                                                        tmp = createNode(line_y,col_y,"Print", "NULL");
                                                                         appendChild($3, tmp);
                                                                         $$ = tmp;
                                                                     }}     
     |   PRINT LPAR STRLIT RPAR SEMICOLON                            {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("Print", "NULL");
-                                                                        appendChild(createNode("StrLit",$3), tmp);
+                                                                        tmp = createNode(line_y,col_y,"Print", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"StrLit",$3), tmp);
                                                                         $$ = tmp;
                                                                     }}             
 	|   error SEMICOLON										        {$$ = NULL;}
@@ -441,15 +441,15 @@ Statement_Aux: Statement_Aux Statement                              {if(erros_si
 /* MethodInvocation -> ID LPAR error RPAR */
 MethodInvocation: 
     ID LPAR Expr MethodInvocation_Aux RPAR                          {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("Call", "NULL");
-                                                                        appendChild(createNode("Id",$1),tmp);
+                                                                        tmp = createNode(line_y,col_y,"Call", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Id",$1),tmp);
                                                                         appendBrother($3, tmp->child);
                                                                         appendBrother($4, tmp->child);
                                                                         $$ = tmp; 
                                                                     }}
     | ID LPAR RPAR                                                  {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("Call", "NULL");
-                                                                        appendChild(createNode("Id",$1),tmp);
+                                                                        tmp = createNode(line_y,col_y,"Call", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Id",$1),tmp);
                                                                         $$ = tmp; 
                                                                     }}
 	| ID LPAR error RPAR								            {$$ = NULL;}
@@ -457,7 +457,7 @@ MethodInvocation:
 
 
 MethodInvocation_Aux: 
-    /* empty */                                                     {if(erros_sintaxe == 0) {$$ = createNode("NULL", "NULL");}}
+    /* empty */                                                     {if(erros_sintaxe == 0) {$$ = createNode(line_y,col_y,"NULL", "NULL");}}
 	| MethodInvocation_Aux COMMA Expr                               {if (erros_sintaxe == 0) {appendBrother($3, $1); $$ = $1;}}
 	;
 
@@ -465,8 +465,8 @@ MethodInvocation_Aux:
 /* Assignment -> ID ASSIGN Expr */
 Assignment: 
     ID ASSIGN Expr                                                  {if(erros_sintaxe == 0) {   
-                                                                        tmp = createNode("Assign", "NULL");
-                                                                        appendChild(createNode("Id",$1),tmp);
+                                                                        tmp = createNode(line_y,col_y,"Assign", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Id",$1),tmp);
                                                                         appendBrother($3, tmp->child);
                                                                         $$ = tmp;
                                                                     }}
@@ -477,8 +477,8 @@ Assignment:
 /* ParseArgs -> PARSEINT LPAR error RPAR */
 ParseArgs: 
     PARSEINT LPAR ID LSQ Expr RSQ RPAR                             {if(erros_sintaxe == 0) {
-                                                                        tmp = createNode("ParseArgs", "NULL");
-                                                                        appendChild(createNode("Id",$3),tmp);
+                                                                        tmp = createNode(line_y,col_y,"ParseArgs", "NULL");
+                                                                        appendChild(createNode(line_y,col_y,"Id",$3),tmp);
                                                                         appendBrother($5, tmp->child);
                                                                         $$ = tmp;
                                                                     }}
@@ -502,33 +502,33 @@ Expr:
 /* Expr −→ INTLIT | REALLIT | BOOLLIT */
 /* Expr -> LPAR error RPAR */
 Expr_Aux:   
-    Expr_Aux PLUS Expr_Aux                                          {if(erros_sintaxe == 0) { tmp = createNode("Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
-    |   Expr_Aux MINUS Expr_Aux                                     {if(erros_sintaxe == 0) { tmp = createNode("Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
-    |   Expr_Aux STAR Expr_Aux                                      {if(erros_sintaxe == 0) { tmp = createNode("Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
-    |   Expr_Aux DIV Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode("Div", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
-    |   Expr_Aux MOD Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode("Mod", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux AND Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode("And", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux OR Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Or", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux XOR Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode("Xor", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux LSHIFT Expr_Aux                                    {if(erros_sintaxe == 0) { tmp = createNode("Lshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux RSHIFT Expr_Aux                                    {if(erros_sintaxe == 0) { tmp = createNode("Rshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux EQ Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Eq", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux GE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Ge", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux GT Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Gt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux LE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux LT Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   Expr_Aux NE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode("Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
-    |   MINUS Expr_Aux %prec preced                                 {if(erros_sintaxe == 0) { tmp = createNode("Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
-    |   NOT Expr_Aux %prec preced                                   {if(erros_sintaxe == 0) { tmp = createNode("Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
-    |   PLUS Expr_Aux %prec preced                                  {if(erros_sintaxe == 0) { tmp = createNode("Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    Expr_Aux PLUS Expr_Aux                                          {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Add", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
+    |   Expr_Aux MINUS Expr_Aux                                     {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Sub", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
+    |   Expr_Aux STAR Expr_Aux                                      {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Mul", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
+    |   Expr_Aux DIV Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Div", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}                 
+    |   Expr_Aux MOD Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Mod", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux AND Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"And", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux OR Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Or", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux XOR Expr_Aux                                       {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Xor", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux LSHIFT Expr_Aux                                    {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Lshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux RSHIFT Expr_Aux                                    {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Rshift", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux EQ Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Eq", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux GE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Ge", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux GT Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Gt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux LE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Le", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux LT Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Lt", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   Expr_Aux NE Expr_Aux                                        {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Ne", "NULL"); appendChild($1, tmp); appendBrother($3, $1); $$ = tmp;}}
+    |   MINUS Expr_Aux %prec preced                                 {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Minus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
+    |   NOT Expr_Aux %prec preced                                   {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Not", "NULL"); appendChild($2, tmp); $$ = tmp;}}                                
+    |   PLUS Expr_Aux %prec preced                                  {if(erros_sintaxe == 0) { tmp = createNode(line_y,col_y,"Plus", "NULL"); appendChild($2, tmp); $$ = tmp;}}
     |   LPAR Expr RPAR                                              {if(erros_sintaxe == 0) {$$ = $2;}}
     |   MethodInvocation                                            {if(erros_sintaxe == 0) {$$ = $1;}}
     |   ParseArgs                                                   {if(erros_sintaxe == 0) {$$ = $1;}}
-    |   ID                                                          {if(erros_sintaxe == 0) {tmp = createNode("Id",$1); $$ = tmp;}}
-    |   ID DOTLENGTH                                                {if(erros_sintaxe == 0) {tmp = createNode("Length","NULL"); appendChild(createNode("Id",$1),tmp); $$ = tmp;}}
-    |   INTLIT                                                      {if(erros_sintaxe == 0) {tmp = createNode("DecLit",$1); $$ = tmp;}}
-    |   REALLIT                                                     {if(erros_sintaxe == 0) {tmp = createNode("RealLit",$1); $$ = tmp;}}
-    |   BOOLLIT                                                     {if(erros_sintaxe == 0) {tmp = createNode("BoolLit",$1); $$ = tmp;}}
+    |   ID                                                          {if(erros_sintaxe == 0) {tmp = createNode(line_y,col_y,"Id",$1); $$ = tmp;}}
+    |   ID DOTLENGTH                                                {if(erros_sintaxe == 0) {tmp = createNode(line_y,col_y,"Length","NULL"); appendChild(createNode(line_y,col_y,"Id",$1),tmp); $$ = tmp;}}
+    |   INTLIT                                                      {if(erros_sintaxe == 0) {tmp = createNode(line_y,col_y,"DecLit",$1); $$ = tmp;}}
+    |   REALLIT                                                     {if(erros_sintaxe == 0) {tmp = createNode(line_y,col_y,"RealLit",$1); $$ = tmp;}}
+    |   BOOLLIT                                                     {if(erros_sintaxe == 0) {tmp = createNode(line_y,col_y,"BoolLit",$1); $$ = tmp;}}
     |   LPAR error RPAR                                             {if(erros_sintaxe == 0) {$$ = NULL;}}
     ;
 

@@ -136,7 +136,6 @@ char* troca(char* tipo) {
 
 /*Pesquisar um simbolo na tabela local e de seguida na gloval*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
-    int i, j;
     char resp[40] = "(";
     char right[] = ")";
     char* aux;
@@ -195,11 +194,11 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
 
         }
         else if (strcmp(bro_aux->type, "RealLit") == 0) {
-            bro_aux->annotation = strdup("int");
+            bro_aux->annotation = strdup("double");
 
         }
         else if (strcmp(bro_aux->type, "BoolLit") == 0) {
-            bro_aux->annotation = strdup("int");
+            bro_aux->annotation = strdup("boolean");
 
         }
         else if (strcmp(bro_aux->type, "Id") == 0) {
@@ -650,7 +649,7 @@ void print_table(table_header* root)
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
-    int func_params, node_params = 0, error = 0;
+    int node_params = 0, error = 0;
     ASTtree* params;
     sym_table_node* simbolos;
 
@@ -689,7 +688,13 @@ char* checkNot(ASTtree* node) {
     strcpy(type, (node->child)->annotation);
     //FALTA VERIFICAR ERROS
 
-    return troca(strdup(type));
+    if (strcmp(type, "int") == 0 || strcmp(type, "double") == 0 || strcmp(type, "boolean") == 0){
+        return troca(strdup(type));
+    }
+    else{
+        printf("Line %d, col %d: Operator ! cannot be applied to type %s\n", node->line_y, node->col_y, (node->child)->annotation);
+        return troca(strdup(type));
+    }
 }
 
 
@@ -700,8 +705,6 @@ char* checkNot(ASTtree* node) {
 char* checkEquality(ASTtree* node) {
 
     /* NOTE: The rules are slightly different from those of the relational operators */
-
-    int is_valid = 0;
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -722,7 +725,7 @@ char* checkRelational(ASTtree* node) {
 
     /* NOTE: The rules are slightly different from those of the relational operators */
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -739,7 +742,7 @@ char* checkRelational(ASTtree* node) {
 
 char* checkLogical(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -755,7 +758,7 @@ char* checkLogical(ASTtree* node) {
 
 char* checkMultiplicative(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -782,7 +785,7 @@ char* checkUnary(ASTtree* node) {
 
 char* checkAdd(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -797,7 +800,7 @@ char* checkAdd(ASTtree* node) {
 
 char* checkSub(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -811,7 +814,7 @@ char* checkSub(ASTtree* node) {
 
 char* checkAssign(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
