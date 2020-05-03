@@ -41,7 +41,6 @@ typedef struct table_h
 table_header* root_pointer;
 
 
-
 sym_table_node* create_symbol(char*, param_h*, char*, char*);
 table_header* create_table(char*, param_h*);
 void add_table(table_header*, char*, param_h*);
