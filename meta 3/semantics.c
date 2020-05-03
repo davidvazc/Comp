@@ -182,7 +182,110 @@ table_header* search_symbol_table(char* id, table_header* table, table_header* r
     return NULL;
 }
 
+void check_errors(ASTtree *bro_aux, table_header *table, table_header *root)
+{
+    char *aux;
+    if (bro_aux != NULL){
+        if (strcmp(bro_aux->type, "VarDecl") == 0){
+            check_errors(bro_aux->brother, table, root);
+        }
 
+        else if (strcmp(bro_aux->type, "Call") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkCall2(bro_aux, table, root);
+        }
+
+        else if (strcmp(bro_aux->type, "Not") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkNot2(bro_aux); //retorna tipo do filho
+        }
+
+        else if (strcmp(bro_aux->type, "Eq") == 0 || strcmp(bro_aux->type, "Ne") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkEquality2(bro_aux); //retorna boolean
+        }
+        else if (strcmp(bro_aux->type, "Lt") == 0 || strcmp(bro_aux->type, "Gt") == 0 || strcmp(bro_aux->type, "Le") == 0 || strcmp(bro_aux->type, "Ge") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkRelational2(bro_aux); //retorna boolean
+        }
+        else if (strcmp(bro_aux->type, "Or") == 0 || strcmp(bro_aux->type, "And") == 0 || strcmp(bro_aux->type, "Xor") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkLogical2(bro_aux); //retorna boolean
+        }
+        else if (strcmp(bro_aux->type, "Mul") == 0 || strcmp(bro_aux->type, "Div") == 0 || strcmp(bro_aux->type, "Mod") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkMultiplicative2(bro_aux); //retorna o tipo da expressao a ser multiplicada
+        }
+
+        else if (strcmp(bro_aux->type, "Plus") == 0 || strcmp(bro_aux->type, "Minus") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkUnary2(bro_aux); //retorna o tipo da expressao a ser convertida
+        }
+        else if (strcmp(bro_aux->type, "Add") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkAdd2(bro_aux); //retorna o tipo da expressao a ser adicionada
+        }
+        else if (strcmp(bro_aux->type, "Sub") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkSub2(bro_aux); //retorna o tipo da expressao a ser subtraida
+        }
+        else if (strcmp(bro_aux->type, "Assign") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkAssign2(bro_aux); //retorna o tipo da expressao a ser atribuida
+        }
+        else if (strcmp(bro_aux->type, "ParseArgs") == 0)
+        {
+            check_errors(bro_aux->brother, table, root);
+            checkParseArgs2(bro_aux); //retorna int
+        }
+        /* FUNCOES DE ERRO
+        else if (strcmp(bro_aux->type, "If") == 0) {
+            add_annotations(bro_aux->children, table);
+            checkIf(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Return") == 0) {
+            add_annotations(bro_aux->children, table);
+            checkReturn(bro_aux, table);
+
+        }
+        NOS PRECISAMOS DE IMPLEMENTAR
+        else if (strcmp(bro_aux->type, "While") == 0) {
+            add_annotations(bro_aux->children, table);
+            checkWhile(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
+            add_annotations(bro_aux->children, table);
+            checkShift(bro_aux);
+
+        }
+        else if (strcmp(bro_aux->type, "Length") == 0) {
+            add_annotations(bro_aux->children, table);
+            checkLength(bro_aux);
+
+        }
+        Assign(2) Or(2) And(2) Eq(2) Ne(2) Lt(2) Gt(2) Le(2) Ge(2) Add(2)
+Sub(2) Mul(2) Div(2) Mod(2) Lshift(2) Rshift(2) Xor(2) Not(1) Minus(1)
+Plus(1) Length(1) Call(>=1) ParseArgs(2)
+*/
+        else
+        {
+            check_errors(bro_aux->child, table, root);
+        }
+        check_errors(bro_aux->brother, table, root);
+    }
+}
 
 /*Escrever as anotaçoes na arvore*/
 void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) {
@@ -195,11 +298,11 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
 
         }
         else if (strcmp(bro_aux->type, "RealLit") == 0) {
-            bro_aux->annotation = strdup("int");
+            bro_aux->annotation = strdup("double");
 
         }
         else if (strcmp(bro_aux->type, "BoolLit") == 0) {
-            bro_aux->annotation = strdup("int");
+            bro_aux->annotation = strdup("boolean");
 
         }
         else if (strcmp(bro_aux->type, "Id") == 0) {
@@ -313,7 +416,7 @@ Plus(1) Length(1) Call(>=1) ParseArgs(2)
 
 void ast_to_sym_table(ASTtree* root, table_header* table_root)
 {
-    ASTtree* root_aux;
+    ASTtree *root_aux;
     root_aux = root->child;
     ASTtree* child_aux;
     ASTtree* bro_aux;
@@ -385,7 +488,7 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
                         if (strcmp(bro_aux->type, "VarDecl") == 0)
                         {
                             add_sym_to_table(table_root, bro_aux->child->brother->value, bro_aux->child->type, NULL, "", 2, 1);
-                            //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value);
+                            //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value); 
                         }
                         add_annotations(bro_aux, table_aux, table_root);
                         bro_aux = bro_aux->brother;
@@ -395,8 +498,8 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
         }
         root_aux = root_aux->brother;
     }
+    check_errors(root, table_aux, table_root);
 }
-
 
 param_h* create_param(char* id, char* type)
 {
@@ -644,7 +747,7 @@ void print_table(table_header* root)
 
 
 
-//======================FUNCOES CHECK=================================================
+//======================FUNCOES CHECK ANOTACOES=================================================
 
 
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
@@ -692,7 +795,7 @@ char* checkNot(ASTtree* node) {
         return troca(strdup(type));
     }
     else {
-        printf("Line %d, col %d: Operator ! cannot be applied to type %s\n", node->line_y, node->col_y, (node->child)->annotation);
+        
         return strdup("undef");
     }
 }
@@ -704,52 +807,8 @@ char* checkNot(ASTtree* node) {
 
 char* checkEquality(ASTtree* node) {
 
-    /* NOTE: The rules are slightly different from those of the relational operators */
-
-    int is_valid = 0;
-
-    char first_annotation[1024];
-    char second_annotation[1024];
-
-    strcpy(first_annotation, (node->child)->annotation);
-    strcpy(second_annotation, ((node->child)->brother)->annotation);
-    //FALTA VERIFICAR ERROS
-
-    /* checks if the first operand has integral type */
-    if (strcmp(first_annotation, "int") == 0 || strcmp(first_annotation, "double") == 0 || strcmp(first_annotation, "boolean") == 0) {
-
-        /* checks if the second operand also has integral type */
-        if (strcmp(second_annotation, "int") == 0 || strcmp(second_annotation, "double") == 0 || strcmp(second_annotation, "boolean") == 0) {
-
-            /* checks if the operands are of the same type */
-            if (strcmp(first_annotation, second_annotation) == 0) {
-                is_valid = 1;
-            }
-
-        }
-
-    }
+        return strdup("boolean");
     
-    //Se for valido imprime o tipo
-    if (is_valid) {
-
-        return strdup("boolean");
-
-    }
-
-    //Caso contrario, imprime mensagem de erro e retorna o tipo
-    else {
-
-        if (strcmp(node->type, "Eq") == 0) {
-            printf("Line %d, col %d: Operator == cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-        else {
-            printf("Line %d, col %d: Operator != cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-
-        return strdup("boolean");
-    }
-
 
 }
 
@@ -759,49 +818,8 @@ char* checkEquality(ASTtree* node) {
 
 char* checkRelational(ASTtree* node) {
 
-    int is_valid = 0;
-
-    char first_annotation[1024];
-    char second_annotation[1024];
-
-    strcpy(first_annotation, (node->child)->annotation);
-    strcpy(second_annotation, ((node->child)->brother)->annotation);
-    //FALTA VERIFICAR ERROS
-
-    /* checks if the first operand has integral type */
-    if (strcmp(first_annotation, "int") == 0 || strcmp(first_annotation, "double") == 0 ) {
-
-        /* checks if the second operand also has integral type */
-        if (strcmp(second_annotation, "int") == 0 || strcmp(second_annotation, "double") == 0 ) {
-            is_valid = 1;
-        }
-
-    }
-
-    if (is_valid) {
-
         return strdup("boolean");
-
-    }
-
-    else {
-        /* otherwise the operator cannot be applied to the operands */
-        if (strcmp(node->type, "Lt") == 0) {
-            printf("Line %d, col %d: Operator < cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-        else if (strcmp(node->type, "Gt") == 0) {
-            printf("Line %d, col %d: Operator > cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-        else if (strcmp(node->type, "Le") == 0) {
-            printf("Line %d, col %d: Operator <= cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-        else if (strcmp(node->type, "Ge") == 0) {
-            printf("Line %d, col %d: Operator >= cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
-        }
-
-
-        return strdup("boolean");
-    }
+    
 }
 
 
@@ -897,4 +915,245 @@ char* checkParseArgs(ASTtree* node) {
 
 
     return strdup("int");
+}
+
+//======================FUNCOES CHECK ERROS=================================================
+
+void checkCall2(ASTtree *node, table_header *table, table_header *root)
+{
+    ASTtree *id_call = node->child;
+    char *return_type;
+    int func_params, node_params = 0, error = 0;
+    ASTtree *params;
+    sym_table_node *simbolos;
+
+    table = search_symbol_table(id_call->value, root, root);
+
+    if (table != NULL)
+    {
+
+        simbolos = table->lista_sym;
+        node = id_call->brother;      /* NODE APONTA PARA O 1º PARAMETRO */
+        return_type = simbolos->type; /* TIPO DO RETURN DA FUNÇÃO */
+        simbolos = simbolos->next;    /* TABLE APONTA PARA DEPOIS DE RETURN */
+        params = node;
+        while (params != NULL)
+        {
+            node_params++;
+            params = params->brother;
+        }
+    }
+    //FALTA VERIFICAR ERROS
+
+   
+}
+
+void checkNot2(ASTtree *node)
+{
+
+    char type[1024];
+
+    strcpy(type, (node->child)->annotation);
+
+    if (strcmp(type, "int") == 0 || strcmp(type, "double") == 0 || strcmp(type, "boolean") == 0)
+    {
+        return;
+    }
+    else
+    {
+        printf("Line %d, col %d: Operator ! cannot be applied to type %s\n", node->line_y, node->col_y, (node->child)->annotation);
+        
+    }
+}
+
+void checkEquality2(ASTtree *node)
+{
+
+    /* NOTE: The rules are slightly different from those of the relational operators */
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+    //FALTA VERIFICAR ERROS
+
+    /* checks if the first operand has integral type */
+    if (strcmp(first_annotation, "int") == 0 || strcmp(first_annotation, "double") == 0 || strcmp(first_annotation, "boolean") == 0)
+    {
+
+        /* checks if the second operand also has integral type */
+        if (strcmp(second_annotation, "int") == 0 || strcmp(second_annotation, "double") == 0 || strcmp(second_annotation, "boolean") == 0)
+        {
+
+            /* checks if the operands are of the same type */
+            if (strcmp(first_annotation, second_annotation) == 0)
+            {
+                is_valid = 1;
+            }
+        }
+    }
+
+    //Se for valido imprime o tipo
+    if (is_valid)
+    {
+
+        return ;
+    }
+
+    //Caso contrario, imprime mensagem de erro e retorna o tipo
+    else
+    {
+
+        if (strcmp(node->type, "Eq") == 0)
+        {
+            printf("Line %d, col %d: Operator == cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+        else
+        {
+            printf("Line %d, col %d: Operator != cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+
+        
+    }
+}
+
+void checkRelational2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+    //FALTA VERIFICAR ERROS
+
+    /* checks if the first operand has integral type */
+    if (strcmp(first_annotation, "int") == 0 || strcmp(first_annotation, "double") == 0)
+    {
+
+        /* checks if the second operand also has integral type */
+        if (strcmp(second_annotation, "int") == 0 || strcmp(second_annotation, "double") == 0)
+        {
+            is_valid = 1;
+        }
+    }
+
+    if (is_valid)
+    {
+
+        return ;
+    }
+
+    else
+    {
+        /* otherwise the operator cannot be applied to the operands */
+        if (strcmp(node->type, "Lt") == 0)
+        {
+            printf("Line %d, col %d: Operator < cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+        else if (strcmp(node->type, "Gt") == 0)
+        {
+            printf("Line %d, col %d: Operator > cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+        else if (strcmp(node->type, "Le") == 0)
+        {
+            printf("Line %d, col %d: Operator <= cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+        else if (strcmp(node->type, "Ge") == 0)
+        {
+            printf("Line %d, col %d: Operator >= cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
+        }
+
+        
+    }
+}
+
+void checkLogical2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    
+}
+
+void checkMultiplicative2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    
+}
+
+void checkUnary2(ASTtree *node)
+{
+    char first_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+
+    
+}
+
+void checkAdd2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    
+}
+
+void checkSub2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+   
+}
+
+void checkAssign2(ASTtree *node)
+{
+
+    int is_valid = 0;
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+    
+}
+
+void checkParseArgs2(ASTtree *node)
+{
+
+    return ;
 }
