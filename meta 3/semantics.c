@@ -983,11 +983,9 @@ void checkEquality2(ASTtree *node)
     /* checks if the first operand has integral type */
     if (strcmp(first_annotation, "int") == 0 || strcmp(first_annotation, "double") == 0 || strcmp(first_annotation, "boolean") == 0)
     {
-
         /* checks if the second operand also has integral type */
         if (strcmp(second_annotation, "int") == 0 || strcmp(second_annotation, "double") == 0 || strcmp(second_annotation, "boolean") == 0)
         {
-
             /* checks if the operands are of the same type */
             if (strcmp(first_annotation, second_annotation) == 0)
             {
@@ -997,26 +995,14 @@ void checkEquality2(ASTtree *node)
     }
 
     //Se for valido imprime o tipo
-    if (is_valid)
-    {
+    if (is_valid==1){
 
-        return ;
-    }
-
-    //Caso contrario, imprime mensagem de erro e retorna o tipo
-    else
-    {
-
-        if (strcmp(node->type, "Eq") == 0)
-        {
+        if (strcmp(node->type, "Eq") == 0){
             printf("Line %d, col %d: Operator == cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
         }
-        else
-        {
+        else{
             printf("Line %d, col %d: Operator != cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
         }
-
-        
     }
 }
 
