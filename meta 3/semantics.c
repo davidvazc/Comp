@@ -190,60 +190,60 @@ void check_errors(ASTtree *bro_aux, table_header *table, table_header *root)
 
         else if (strcmp(bro_aux->type, "Call") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkCall2(bro_aux, table, root);
         }
 
         else if (strcmp(bro_aux->type, "Not") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkNot2(bro_aux); //retorna tipo do filho
         }
 
         else if (strcmp(bro_aux->type, "Eq") == 0 || strcmp(bro_aux->type, "Ne") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkEquality2(bro_aux); //retorna boolean
         }
         else if (strcmp(bro_aux->type, "Lt") == 0 || strcmp(bro_aux->type, "Gt") == 0 || strcmp(bro_aux->type, "Le") == 0 || strcmp(bro_aux->type, "Ge") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkRelational2(bro_aux); //retorna boolean
         }
         else if (strcmp(bro_aux->type, "Or") == 0 || strcmp(bro_aux->type, "And") == 0 || strcmp(bro_aux->type, "Xor") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkLogical2(bro_aux); //retorna boolean
         }
         else if (strcmp(bro_aux->type, "Mul") == 0 || strcmp(bro_aux->type, "Div") == 0 || strcmp(bro_aux->type, "Mod") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkMultiplicative2(bro_aux); //retorna o tipo da expressao a ser multiplicada
         }
 
         else if (strcmp(bro_aux->type, "Plus") == 0 || strcmp(bro_aux->type, "Minus") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkUnary2(bro_aux); //retorna o tipo da expressao a ser convertida
         }
         else if (strcmp(bro_aux->type, "Add") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkAdd2(bro_aux); //retorna o tipo da expressao a ser adicionada
         }
         else if (strcmp(bro_aux->type, "Sub") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkSub2(bro_aux); //retorna o tipo da expressao a ser subtraida
         }
         else if (strcmp(bro_aux->type, "Assign") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkAssign2(bro_aux); //retorna o tipo da expressao a ser atribuida
         }
         else if (strcmp(bro_aux->type, "ParseArgs") == 0)
         {
-            check_errors(bro_aux->brother, table, root);
+            check_errors(bro_aux->child, table, root);
             checkParseArgs2(bro_aux); //retorna int
         }
         /* FUNCOES DE ERRO
@@ -992,7 +992,7 @@ void checkEquality2(ASTtree *node)
     }
 
     //Se for valido imprime o tipo
-    if (is_valid==1){
+    if (is_valid==0){
 
         if (strcmp(node->type, "Eq") == 0){
             printf("Line %d, col %d: Operator == cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
