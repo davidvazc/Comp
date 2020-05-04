@@ -136,7 +136,6 @@ char* troca(char* tipo) {
 
 /*Pesquisar um simbolo na tabela local e de seguida na gloval*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
-    int i, j;
     char resp[40] = "(";
     char right[] = ")";
     char* aux;
@@ -184,7 +183,6 @@ table_header* search_symbol_table(char* id, table_header* table, table_header* r
 
 void check_errors(ASTtree *bro_aux, table_header *table, table_header *root)
 {
-    char *aux;
     if (bro_aux != NULL){
         if (strcmp(bro_aux->type, "VarDecl") == 0){
             check_errors(bro_aux->brother, table, root);
@@ -753,7 +751,7 @@ void print_table(table_header* root)
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
-    int func_params, node_params = 0, error = 0;
+    int node_params = 0, error = 0;
     ASTtree* params;
     sym_table_node* simbolos;
 
@@ -826,7 +824,7 @@ char* checkRelational(ASTtree* node) {
 
 char* checkLogical(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -842,7 +840,7 @@ char* checkLogical(ASTtree* node) {
 
 char* checkMultiplicative(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -869,7 +867,7 @@ char* checkUnary(ASTtree* node) {
 
 char* checkAdd(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -884,7 +882,7 @@ char* checkAdd(ASTtree* node) {
 
 char* checkSub(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -898,7 +896,7 @@ char* checkSub(ASTtree* node) {
 
 char* checkAssign(ASTtree* node) {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -923,7 +921,6 @@ void checkCall2(ASTtree *node, table_header *table, table_header *root)
 {
     ASTtree *id_call = node->child;
     char *return_type;
-    int func_params, node_params = 0, error = 0;
     ASTtree *params;
     sym_table_node *simbolos;
 
@@ -939,7 +936,7 @@ void checkCall2(ASTtree *node, table_header *table, table_header *root)
         params = node;
         while (params != NULL)
         {
-            node_params++;
+            
             params = params->brother;
         }
     }
@@ -1062,7 +1059,7 @@ void checkRelational2(ASTtree *node)
 void checkLogical2(ASTtree *node)
 {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1076,7 +1073,7 @@ void checkLogical2(ASTtree *node)
 void checkMultiplicative2(ASTtree *node)
 {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1099,7 +1096,7 @@ void checkUnary2(ASTtree *node)
 void checkAdd2(ASTtree *node)
 {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1113,7 +1110,7 @@ void checkAdd2(ASTtree *node)
 void checkSub2(ASTtree *node)
 {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1127,7 +1124,7 @@ void checkSub2(ASTtree *node)
 void checkAssign2(ASTtree *node)
 {
 
-    int is_valid = 0;
+    
 
     char first_annotation[1024];
     char second_annotation[1024];
