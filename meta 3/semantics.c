@@ -27,7 +27,6 @@ sym_table_node* create_symbol(char* id, param_h* paramtype, char* type, char* fl
 
 table_header* create_table(char* name, param_h* paramtype)
 {
-
     table_header* new_table = (table_header*)malloc(sizeof(table_header));
     new_table->head = (char*)malloc(strlen(name) * sizeof(char) + 1);
     strcpy(new_table->head, name);
@@ -859,15 +858,16 @@ char* checkLogical(ASTtree* node) {
 
 char* checkMultiplicative(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
 
-    strcpy(first_annotation, (node->child)->annotation);
-    strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    return troca(strdup(first_annotation));
+    if ((node->child)->annotation != NULL)
+        return troca(strdup((node->child)->annotation));
+    else
+        return strdup("undef");
 }
 
 
