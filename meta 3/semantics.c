@@ -168,7 +168,6 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
 /*Pesquisar o nome de uma tabela para ver se e funcao*/
 table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
     //printlocaltable(table);
-
     while (table != NULL) {
         /*
         printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
@@ -747,29 +746,49 @@ void print_table(table_header* root)
 
 //======================FUNCOES CHECK ANOTACOES=================================================
 
+int n_params_on_func(table_header *table)
+{
+    int n_params = 0;
+    table = (table->next)->next; /* APONTA PARA DEPOIS DE RETURN */
+
+    while (table != NULL && table->flag.flag_param == 1)
+    {
+        if (strcmp(table->lista_sym->type, "void") != 0)
+        {
+            n_params++;
+        }
+        table = table->next;
+    }
+
+    return n_params;
+}
 
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
-    int node_params = 0, error = 0;
+    int func_params = 0, node_params=0, error = 0;
     ASTtree* params;
-    sym_table_node* simbolos;
+    //sym_table_node* simbolos;
 
-    table = search_symbol_table(id_call->value, root, root);
-
-    if (table != NULL) {
-
-        simbolos = table->lista_sym;
+    //table = search_symbol_table(id_call->value, table, root);
+    table = root;
+    if (table != NULL)
+    {
         node = id_call->brother; /* NODE APONTA PARA O 1º PARAMETRO */
-        return_type = simbolos->type; /* TIPO DO RETURN DA FUNÇÃO */
-        simbolos = simbolos->next; /* TABLE APONTA PARA DEPOIS DE RETURN */
+        return_type = (table->next)->lista_sym->type; /* TIPO DO RETURN DA FUNÇÃO */
+        func_params = n_params_on_func(table); /* NÚMERO DE PARAMETROS DA FUNÇÃO */
+        table = (table->next)->next; /* TABLE APONTA PARA DEPOIS DE RETURN */
+
         params = node;
         while (params != NULL) {
             node_params++;
             params = params->brother;
         }
     }
-    //FALTA VERIFICAR ERROS
+    else
+    {
+        error = 1;
+    }
 
     if (error == 0) {
         return troca(strdup(return_type));
