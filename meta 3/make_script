@@ -1,3 +1,0 @@
-#! /bin/bash
-make
-zip -q -T jucompiler.zip jucompiler.l jucompiler.y arvore.c arvore.h semantics.c semantics.h
