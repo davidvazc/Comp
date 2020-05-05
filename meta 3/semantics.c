@@ -149,7 +149,12 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
         printf("NODE Type: %sID: %s\n",node->type,node->value);*/
         if (strcmp(local_table->id, node->value) == 0) {
             if (table == root) {
-                strcat(resp, troca(local_table->type));
+                if (strcmp(local_table->type, "Void") == 0) {
+                    strcat(resp, "");
+                }
+                else {
+                    strcat(resp, troca(local_table->type));
+                }
                 strcat(resp, right);
                 aux = strdup(resp);
                 return (aux);
@@ -166,25 +171,27 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
 
 
 /*Pesquisar o nome de uma tabela para ver se e funcao*/
-table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
+char* search_symbol_table(char* id, table_header* table, table_header* root) {
     //printlocaltable(table);
+    sym_table_node* local_table;
+    local_table = table->lista_sym;
 
-    while (table != NULL) {
+    while (local_table != NULL) {
         /*
         printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
         printf("NODE Type: %sID: %s\n",node->type,node->value);*/
-        if (strcmp(table->head, id) == 0) {
-            return table;
+        if (strcmp(local_table->id, id) == 0) {
+            return troca(local_table->type);
         }
-        table = table->next;
+        local_table = local_table->next;
     }
-    return NULL;
+    return strdup("undef");
 }
 
-void check_errors(ASTtree *bro_aux, table_header *table, table_header *root)
+void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
 {
-    if (bro_aux != NULL){
-        if (strcmp(bro_aux->type, "VarDecl") == 0){
+    if (bro_aux != NULL) {
+        if (strcmp(bro_aux->type, "VarDecl") == 0) {
             check_errors(bro_aux->brother, table, root);
         }
 
@@ -283,6 +290,7 @@ Plus(1) Length(1) Call(>=1) ParseArgs(2)
         }
         check_errors(bro_aux->brother, table, root);
     }
+    return;
 }
 
 /*Escrever as anotaçoes na arvore*/
@@ -414,10 +422,11 @@ Plus(1) Length(1) Call(>=1) ParseArgs(2)
 
 void ast_to_sym_table(ASTtree* root, table_header* table_root)
 {
-    ASTtree *root_aux;
+    ASTtree* root_aux;
     root_aux = root->child;
     ASTtree* child_aux;
     ASTtree* bro_aux;
+    ASTtree* MethodBody_aux;
     table_header* table_aux = table_root;
     char head[100];
     char type[10];
@@ -481,6 +490,7 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
                     else
                         add_sym_to_table(table_root, "return", return_id, NULL, "", 2, 1);
                     bro_aux = bro_aux->child;
+                    MethodBody_aux = bro_aux;
                     while (bro_aux)
                     {
                         if (strcmp(bro_aux->type, "VarDecl") == 0)
@@ -488,15 +498,15 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
                             add_sym_to_table(table_root, bro_aux->child->brother->value, bro_aux->child->type, NULL, "", 2, 1);
                             //printf("Type: %s\nId: %s\n",bro_aux->child->type,bro_aux->child->brother->value); 
                         }
-                        add_annotations(bro_aux, table_aux, table_root);
                         bro_aux = bro_aux->brother;
                     }
+                    add_annotations(MethodBody_aux, table_aux, table_root);
                 }
             }
         }
         root_aux = root_aux->brother;
     }
-    check_errors(root, table_aux, table_root);
+    //check_errors(root, table_aux, table_root);
 }
 
 param_h* create_param(char* id, char* type)
@@ -752,23 +762,10 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
     int node_params = 0, error = 0;
-    ASTtree* params;
     sym_table_node* simbolos;
 
-    table = search_symbol_table(id_call->value, root, root);
+    return_type = search_symbol_table(id_call->value, root, root);
 
-    if (table != NULL) {
-
-        simbolos = table->lista_sym;
-        node = id_call->brother; /* NODE APONTA PARA O 1º PARAMETRO */
-        return_type = simbolos->type; /* TIPO DO RETURN DA FUNÇÃO */
-        simbolos = simbolos->next; /* TABLE APONTA PARA DEPOIS DE RETURN */
-        params = node;
-        while (params != NULL) {
-            node_params++;
-            params = params->brother;
-        }
-    }
     //FALTA VERIFICAR ERROS
 
     if (error == 0) {
@@ -793,7 +790,7 @@ char* checkNot(ASTtree* node) {
         return troca(strdup(type));
     }
     else {
-        
+
         return strdup("undef");
     }
 }
@@ -805,8 +802,8 @@ char* checkNot(ASTtree* node) {
 
 char* checkEquality(ASTtree* node) {
 
-        return strdup("boolean");
-    
+    return strdup("boolean");
+
 
 }
 
@@ -816,15 +813,15 @@ char* checkEquality(ASTtree* node) {
 
 char* checkRelational(ASTtree* node) {
 
-        return strdup("boolean");
-    
+    return strdup("boolean");
+
 }
 
 
 
 char* checkLogical(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -840,15 +837,16 @@ char* checkLogical(ASTtree* node) {
 
 char* checkMultiplicative(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
 
-    strcpy(first_annotation, (node->child)->annotation);
-    strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    return troca(strdup(first_annotation));
+    if ((node->child)->annotation != NULL)
+        return troca(strdup((node->child)->annotation));
+    else
+        return strdup("undef");
 }
 
 
@@ -867,7 +865,7 @@ char* checkUnary(ASTtree* node) {
 
 char* checkAdd(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -882,7 +880,7 @@ char* checkAdd(ASTtree* node) {
 
 char* checkSub(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -896,7 +894,7 @@ char* checkSub(ASTtree* node) {
 
 char* checkAssign(ASTtree* node) {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -917,35 +915,18 @@ char* checkParseArgs(ASTtree* node) {
 
 //======================FUNCOES CHECK ERROS=================================================
 
-void checkCall2(ASTtree *node, table_header *table, table_header *root)
+void checkCall2(ASTtree* node, table_header* table, table_header* root)
 {
-    ASTtree *id_call = node->child;
-    char *return_type;
-    ASTtree *params;
-    sym_table_node *simbolos;
-
-    table = search_symbol_table(id_call->value, root, root);
-
-    if (table != NULL)
-    {
-
-        simbolos = table->lista_sym;
-        node = id_call->brother;      /* NODE APONTA PARA O 1º PARAMETRO */
-        return_type = simbolos->type; /* TIPO DO RETURN DA FUNÇÃO */
-        simbolos = simbolos->next;    /* TABLE APONTA PARA DEPOIS DE RETURN */
-        params = node;
-        while (params != NULL)
-        {
-            
-            params = params->brother;
-        }
-    }
+    ASTtree* id_call = node->child;
+    char* return_type;
+    ASTtree* params;
+    sym_table_node* simbolos;
     //FALTA VERIFICAR ERROS
 
-   
+
 }
 
-void checkNot2(ASTtree *node)
+void checkNot2(ASTtree* node)
 {
 
     char type[1024];
@@ -959,11 +940,12 @@ void checkNot2(ASTtree *node)
     else
     {
         printf("Line %d, col %d: Operator ! cannot be applied to type %s\n", node->line_y, node->col_y, (node->child)->annotation);
-        
+        return;
+
     }
 }
 
-void checkEquality2(ASTtree *node)
+void checkEquality2(ASTtree* node)
 {
 
     /* NOTE: The rules are slightly different from those of the relational operators */
@@ -975,6 +957,8 @@ void checkEquality2(ASTtree *node)
 
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
+    printf("%s\n", node->child->value);
+    printf("%s\n", (node->child)->brother->value);
     //FALTA VERIFICAR ERROS
 
     /* checks if the first operand has integral type */
@@ -992,18 +976,21 @@ void checkEquality2(ASTtree *node)
     }
 
     //Se for valido imprime o tipo
-    if (is_valid==0){
+    if (is_valid == 0) {
 
-        if (strcmp(node->type, "Eq") == 0){
+        if (strcmp(node->type, "Eq") == 0) {
             printf("Line %d, col %d: Operator == cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
         }
-        else{
+        else {
             printf("Line %d, col %d: Operator != cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
         }
+        return;
     }
+
+    return;
 }
 
-void checkRelational2(ASTtree *node)
+void checkRelational2(ASTtree* node)
 {
 
     int is_valid = 0;
@@ -1029,7 +1016,7 @@ void checkRelational2(ASTtree *node)
     if (is_valid)
     {
 
-        return ;
+        return;
     }
 
     else
@@ -1051,15 +1038,16 @@ void checkRelational2(ASTtree *node)
         {
             printf("Line %d, col %d: Operator >= cannot be applied to types %s, %s\n", node->line_y, node->col_y, first_annotation, second_annotation);
         }
+        return;
 
-        
+
     }
 }
 
-void checkLogical2(ASTtree *node)
+void checkLogical2(ASTtree* node)
 {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1067,13 +1055,13 @@ void checkLogical2(ASTtree *node)
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    
+
 }
 
-void checkMultiplicative2(ASTtree *node)
+void checkMultiplicative2(ASTtree* node)
 {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1081,36 +1069,22 @@ void checkMultiplicative2(ASTtree *node)
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    
+
 }
 
-void checkUnary2(ASTtree *node)
+void checkUnary2(ASTtree* node)
 {
     char first_annotation[1024];
 
     strcpy(first_annotation, (node->child)->annotation);
 
-    
+
 }
 
-void checkAdd2(ASTtree *node)
+void checkAdd2(ASTtree* node)
 {
 
-    
 
-    char first_annotation[1024];
-    char second_annotation[1024];
-
-    strcpy(first_annotation, (node->child)->annotation);
-    strcpy(second_annotation, ((node->child)->brother)->annotation);
-
-    
-}
-
-void checkSub2(ASTtree *node)
-{
-
-    
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1118,13 +1092,13 @@ void checkSub2(ASTtree *node)
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-   
+
 }
 
-void checkAssign2(ASTtree *node)
+void checkSub2(ASTtree* node)
 {
 
-    
+
 
     char first_annotation[1024];
     char second_annotation[1024];
@@ -1132,11 +1106,25 @@ void checkAssign2(ASTtree *node)
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    
+
 }
 
-void checkParseArgs2(ASTtree *node)
+void checkAssign2(ASTtree* node)
 {
 
-    return ;
+
+
+    char first_annotation[1024];
+    char second_annotation[1024];
+
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
+
+
+}
+
+void checkParseArgs2(ASTtree* node)
+{
+
+    return;
 }
