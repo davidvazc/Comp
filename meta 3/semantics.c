@@ -110,74 +110,7 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
 }
 
 
-/*Escrever o tipo correto na arvore anotada*/
-char* troca(char* tipo) {
-    if (strcmp(tipo, "Int") == 0) {
-        return ("int");
-    }
-    if (strcmp(tipo, "StringArray") == 0) {
-        return ("String[]");
-    }
-    if (strcmp(tipo, "Bool") == 0) {
-        return ("boolean");
-    }
-    if (strcmp(tipo, "Double") == 0) {
-        return ("double");
-    }
-    if (strcmp(tipo, "Void") == 0) {
-        return ("void");
-    }
-    //adicionar os outros tipos
-    return tipo;
-}
 
-
-
-/*Pesquisar um simbolo na tabela local e de seguida na gloval*/
-char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
-    char resp[40] = "(";
-    char right[] = ")";
-    char* aux;
-    sym_table_node* local_table;
-    //printlocaltable(table);
-    local_table = table->lista_sym;
-
-    while (local_table != NULL) {
-        /*
-        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
-        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
-        if (strcmp(local_table->id, node->value) == 0) {
-            if (table == root) {
-                strcat(resp, troca(local_table->type));
-                strcat(resp, right);
-                aux = strdup(resp);
-                return (aux);
-            }
-            return troca(local_table->type);
-        }
-        local_table = local_table->next;
-    }
-    if (table != root) {
-        return strdup(search_symbol_type(node, root, root));
-    }
-    return strdup("undef");
-}
-
-
-/*Pesquisar o nome de uma tabela para ver se e funcao*/
-table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
-    //printlocaltable(table);
-    while (table != NULL) {
-        /*
-        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
-        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
-        if (strcmp(table->head, id) == 0) {
-            return table;
-        }
-        table = table->next;
-    }
-    return NULL;
-}
 
 void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
 {
@@ -749,10 +682,78 @@ void print_table(table_header* root)
 }
 
 
+//======================FUNCOES UTILITY=================================================
+
+
+/*Escrever o tipo correto na arvore anotada*/
+char* troca(char* tipo) {
+    if (strcmp(tipo, "Int") == 0) {
+        return ("int");
+    }
+    if (strcmp(tipo, "StringArray") == 0) {
+        return ("String[]");
+    }
+    if (strcmp(tipo, "Bool") == 0) {
+        return ("boolean");
+    }
+    if (strcmp(tipo, "Double") == 0) {
+        return ("double");
+    }
+    if (strcmp(tipo, "Void") == 0) {
+        return ("void");
+    }
+    //adicionar os outros tipos
+    return tipo;
+}
 
 
 
-//======================FUNCOES CHECK ANOTACOES=================================================
+/*Pesquisar um simbolo na tabela local e de seguida na gloval*/
+char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
+    char resp[40] = "(";
+    char right[] = ")";
+    char* aux;
+    sym_table_node* local_table;
+    //printlocaltable(table);
+    local_table = table->lista_sym;
+
+    while (local_table != NULL) {
+        /*
+        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
+        if (strcmp(local_table->id, node->value) == 0) {
+            if (table == root) {
+                strcat(resp, troca(local_table->type));
+                strcat(resp, right);
+                aux = strdup(resp);
+                return (aux);
+            }
+            return troca(local_table->type);
+        }
+        local_table = local_table->next;
+    }
+    if (table != root) {
+        return strdup(search_symbol_type(node, root, root));
+    }
+    return strdup("undef");
+}
+
+
+/*Pesquisar o nome de uma tabela para ver se e funcao*/
+table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
+    //printlocaltable(table);
+    while (table != NULL) {
+        /*
+        printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+        printf("NODE Type: %sID: %s\n",node->type,node->value);*/
+        if (strcmp(table->head, id) == 0) {
+            return table;
+        }
+        table = table->next;
+    }
+    return NULL;
+}
+
 
 int n_params_on_func(table_header* table)
 {
@@ -788,6 +789,14 @@ char* search_function_type(char* id, table_header* table, int params) {
     }
     return strdup("undef");
 }
+
+
+
+
+
+//======================FUNCOES CHECK ANOTACOES=================================================
+
+
 
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
