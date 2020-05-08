@@ -817,6 +817,7 @@ char* search_function_type(char* id, table_header* table, param_h *params) {
     char* aux;
     int func_params;
     sym_table_node* local_table;
+
     //printlocaltable(table);
     local_table = table->lista_sym;
 
@@ -826,7 +827,10 @@ char* search_function_type(char* id, table_header* table, param_h *params) {
         //printf("NODE ID: %s\n",id);
         
         if (strcmp(local_table->id, id) == 0 ) {
-            return compare_params(id, local_table, params);
+            aux=compare_params(id, local_table, params);
+            if (strcmp(aux,"undef")!=0){
+            	return aux;
+            }
         }
         local_table = local_table->next;
     }
