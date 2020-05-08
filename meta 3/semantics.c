@@ -838,18 +838,19 @@ char* search_function_type(char* id, table_header* table, param_h *params) {
 /*Necessario passar o simbolo certo na tabela global e retorna o type correto*/
 char* compare_params(char* id, sym_table_node* simbolos, param_h* params) {
     param_h *p = params;
+    param_h *param_simbolos=simbolos->params;
     int cont = 0;
 
-        while(p->next !=NULL && simbolos->params!=NULL){
-            printf("\ntipo1:%s tipo2:%s", p->type, troca(simbolos->params->type));
-            if (strcmp(p->type,troca(simbolos->params->type))==0)
+        while(p !=NULL && param_simbolos!=NULL){
+            printf("\ntipo1:%s tipo2:%s", p->type, troca(param_simbolos->type));
+            if (strcmp(p->type,troca(param_simbolos->type))==0)
                 cont++;
             p = p->next;
-        simbolos->params = simbolos->params->next;
+        	param_simbolos = param_simbolos->next;
         }
     
     printf("\ncont:%d  tamanho:%d\n", cont, getCount(params));
-    if (cont == getCount(params)-1){
+    if (cont == getCount(params)){
         
         return simbolos->type;
     }
@@ -857,16 +858,16 @@ char* compare_params(char* id, sym_table_node* simbolos, param_h* params) {
     return strdup("undef");
 }
 
-void freeMem(param_h** head){
+void freeMem(param_h* head){
     param_h *aux;
-    param_h *p=*head;
+    param_h *p=head;
     while (p->next != NULL)
     {
         aux = p->next;
         free(p);
         p = aux;
     }
-    *head = NULL;
+    head = NULL;
 }
 
 /* Add a new node to linked list */
@@ -888,30 +889,30 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     char* return_type;
     char* aux;
     int func_params = 0, node_params = 0, error = 0;
-    ASTtree* params;
+    ASTtree* params=id_call->brother;
     param_h *parametros = NULL, *parametrosAUX = NULL;
     param_h *head;
-    for (int i = 0; i < check_nr_nodes(id_call);i++){
-        params = id_call->brother;
+    while(params!=NULL && strcmp(params->type,"NULL")!=0){
         if(parametros ==NULL){
             parametros = (param_h *)malloc(1 * sizeof(param_h));
             parametros->type= params->annotation;
             parametros->next = NULL;
             parametrosAUX = parametros;
-           // printf("%s\n", parametros->type);
+            //printf("%s\n", parametros->type);
         } else{
             parametrosAUX->next = (param_h *)malloc(1 * sizeof(param_h));
             parametrosAUX = parametrosAUX->next;
             parametrosAUX->type= params->annotation;
             parametrosAUX->next = NULL;
         }
+        params = params->brother;
     }
     printLista(parametros);
     return_type = search_function_type(id_call->value, root, parametros);
     //freeMem(*head);
    
         printf("Return type:%s\n",return_type);
-        return strdup(return_type);
+        return troca(strdup(return_type));
    
     
 }
