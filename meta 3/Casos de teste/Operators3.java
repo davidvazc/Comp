@@ -10,7 +10,9 @@ class Sum {
 
         if(x==y){
         	if(a==b){
-        		
+        		if(d==b){
+        			x = ((d*e)<=(a>>c))||((x)==(!y));
+        		}
         	}
         }
 
