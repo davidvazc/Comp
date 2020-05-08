@@ -774,20 +774,56 @@ int n_params_on_func(table_header* table)
 
 char* search_function_type(char* id, table_header* table, int params) {
     char* aux;
+    int func_params;
     sym_table_node* local_table;
     //printlocaltable(table);
     local_table = table->lista_sym;
 
     while (local_table != NULL) {
 
-        printf("TABELA Type: %sId: %s\n", local_table->type, local_table->id);
-        printf("NODE ID: %s\n", id);
-        if (strcmp(local_table->id, id) == 0) {
+        //printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
+        //printf("NODE ID: %s\n",id);
+        compare_params(id, local_table, table);
+        if (strcmp(local_table->id, id) == 0 && compare_params(id, local_table, table) == params) {
             return troca(local_table->type);
         }
         local_table = local_table->next;
     }
     return strdup("undef");
+}
+
+
+
+/*Necessario passar o simbolo certo na tabela global e retorna o type correto*/
+int compare_params(char* id, sym_table_node* simbolos, table_header* root) {
+    int contador = 0;
+    table_header* table = root->next;
+    param_h* parametros;
+    int n_params;
+    while (table != NULL) {
+        contador = 0;
+        if (strcmp(table->head, id) == 0) {
+            parametros = table->l_params;
+            n_params = n_params_on_func(table);
+            while (parametros != NULL && simbolos->params != NULL) {
+                if (strcmp(parametros->type, simbolos->params->type) == 0 && strcmp(parametros->id, simbolos->params->id) == 0) {
+                    contador++;
+                }
+                parametros = parametros->next;
+                simbolos->params = simbolos->params->next;
+
+            }
+            if (n_params == contador) {
+                return contador;
+            }
+
+        }
+
+        table = table->next;
+    }
+
+    return 0;
+
 }
 
 
@@ -802,31 +838,24 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
     char* aux;
+    param_h* lista_parametros = (param_h*)malloc(sizeof(param_h));
     int func_params = 0, node_params = 0, error = 0;
     ASTtree* params;
     //sym_table_node* simbolos;
+    params = id_call->brother;
 
+    while (params != NULL) {
+        //printf("%s\n",params->type);
+        if (strcmp(params->type, "NULL") != 0) {
+            //strcpy(lista_parametros->type,params->annotation);
+            //printf("%s\n",lista_parametros->type);
+        }
+
+        params = params->brother;
+    }
     //table = search_symbol_table(id_call->value, table, root);
     return_type = search_function_type(id_call->value, root, func_params);
-    table = root;
-    if (table != NULL)
-    {
-        node = id_call->brother; /* NODE APONTA PARA O 1º PARAMETRO */
-        return_type = (table->next)->lista_sym->type; /* TIPO DO RETURN DA FUNÇÃO */
-        func_params = n_params_on_func(table); /* NÚMERO DE PARAMETROS DA FUNÇÃO */
-        table = (table->next)->next; /* TABLE APONTA PARA DEPOIS DE RETURN */
-
-        params = node;
-        while (params != NULL) {
-            node_params++;
-            params = params->brother;
-        }
-    }
-    else
-    {
-        error = 1;
-    }
-
+    free(lista_parametros);
     if (error == 0) {
         return troca(strdup(return_type));
     }
