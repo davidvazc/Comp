@@ -82,7 +82,8 @@ void checkAdd2(ASTtree*);
 void checkSub2(ASTtree*);
 void checkAssign2(ASTtree*);
 void checkParseArgs2(ASTtree*);
-char* search_function_type(char*, table_header*, int);
-int compare_params(char*, sym_table_node*, table_header*);
+char* search_function_type(char*, table_header*, param_h*);
+char* compare_params(char*, sym_table_node*, param_h*);
+int n_params_on_func(table_header *);
 
 #endif
