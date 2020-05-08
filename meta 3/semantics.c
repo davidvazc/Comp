@@ -892,18 +892,22 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* params=id_call->brother;
     param_h *parametros = NULL, *parametrosAUX = NULL;
     param_h *head;
-    while(params!=NULL && strcmp(params->type,"NULL")!=0){
+    while(params!=NULL){
         if(parametros ==NULL){
-            parametros = (param_h *)malloc(1 * sizeof(param_h));
-            parametros->type= params->annotation;
-            parametros->next = NULL;
-            parametrosAUX = parametros;
-            //printf("%s\n", parametros->type);
+        	if(strcmp(params->type,"NULL")!=0){
+	            parametros = (param_h *)malloc(1 * sizeof(param_h));
+	            parametros->type= params->annotation;
+	            parametros->next = NULL;
+	            parametrosAUX = parametros;
+	            //printf("%s\n", parametros->type);
+            }
         } else{
-            parametrosAUX->next = (param_h *)malloc(1 * sizeof(param_h));
-            parametrosAUX = parametrosAUX->next;
-            parametrosAUX->type= params->annotation;
-            parametrosAUX->next = NULL;
+        	if(strcmp(params->type,"NULL")!=0){
+	            parametrosAUX->next = (param_h *)malloc(1 * sizeof(param_h));
+	            parametrosAUX = parametrosAUX->next;
+	            parametrosAUX->type= params->annotation;
+	            parametrosAUX->next = NULL;
+	        }
         }
         params = params->brother;
     }
