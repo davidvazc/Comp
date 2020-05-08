@@ -109,7 +109,28 @@ void add_sym_to_table(table_header* root, char* id, char* type, param_h* paramty
     }
 }
 
+void check_annotations(ASTtree* bro_aux, table_header* table, table_header* root){
+    if (bro_aux != NULL) {
+        if (strcmp(bro_aux->type, "VarDecl") == 0) {
+            check_annotations(bro_aux->brother, table, root);
+        }
+        else if (strcmp(bro_aux->type, "MethodBody") == 0) {
+            add_annotations(bro_aux->child, table, root);
+            check_annotations(bro_aux->child,table,root);
 
+        }
+        else if (strcmp(bro_aux->type, "MethodHeader") == 0) {
+            table = search_symbol_table((bro_aux->child)->brother->value, root, root);
+            check_annotations(bro_aux->child, table, root);
+
+        }
+        else
+        {
+            check_annotations(bro_aux->child, table, root);
+        }
+        check_annotations(bro_aux->brother, table, root);
+    }
+}
 
 
 void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
@@ -705,6 +726,15 @@ char* troca(char* tipo) {
     return tipo;
 }
 
+/* Print all the elements in the linked list */
+void printLista(param_h *head) {
+    param_h *current_node = head;
+   	while ( current_node != NULL) {
+        printf("%s ->", current_node->type);
+        current_node = current_node->next;
+    }
+}
+
 
 
 /*Pesquisar um simbolo na tabela local e de seguida na gloval*/
@@ -839,6 +869,16 @@ void freeMem(param_h** head){
     *head = NULL;
 }
 
+/* Add a new node to linked list */
+param_h * add(char* data, param_h *head) {
+    param_h*new_node;
+    new_node = (param_h *) malloc(sizeof(param_h));
+    new_node->type = data;
+    new_node->next= head;
+    head = new_node;
+return head;
+}
+
 //======================FUNCOES CHECK ANOTACOES=================================================
 
 
@@ -850,8 +890,7 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     int func_params = 0, node_params = 0, error = 0;
     ASTtree* params;
     param_h *parametros = NULL, *parametrosAUX = NULL;
-    param_h *head=parametros;
-
+    param_h *head;
     for (int i = 0; i < check_nr_nodes(id_call);i++){
         params = id_call->brother;
         if(parametros ==NULL){
@@ -867,8 +906,8 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
             parametrosAUX->next = NULL;
         }
     }
+    printLista(parametros);
     return_type = search_function_type(id_call->value, root, parametros);
-
     //freeMem(*head);
    
         printf("Return type:%s\n",return_type);
