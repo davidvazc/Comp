@@ -730,7 +730,7 @@ char* troca(char* tipo) {
 void printLista(param_h *head) {
     param_h *current_node = head;
    	while ( current_node != NULL) {
-        printf("%s ->", current_node->type);
+        //printf("%s ->", current_node->type);
         current_node = current_node->next;
     }
 }
@@ -846,14 +846,14 @@ char* compare_params(char* id, sym_table_node* simbolos, param_h* params) {
     int cont = 0;
 
         while(p !=NULL && param_simbolos!=NULL){
-            printf("\ntipo1:%s tipo2:%s", p->type, troca(param_simbolos->type));
+            //printf("\ntipo1:%s tipo2:%s", p->type, troca(param_simbolos->type));
             if (strcmp(p->type,troca(param_simbolos->type))==0)
                 cont++;
             p = p->next;
         	param_simbolos = param_simbolos->next;
         }
     
-    printf("\ncont:%d  tamanho:%d\n", cont, getCount(params));
+    //printf("\ncont:%d  tamanho:%d\n", cont, getCount(params));
     if (cont == getCount(params)){
         
         return simbolos->type;
@@ -919,7 +919,7 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     return_type = search_function_type(id_call->value, root, parametros);
     //freeMem(*head);
    
-        printf("Return type:%s\n",return_type);
+        //printf("Return type:%s\n",return_type);
         return troca(strdup(return_type));
    
     
