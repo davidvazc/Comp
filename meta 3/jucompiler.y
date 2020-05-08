@@ -575,6 +575,7 @@ int main(int argc, char* argv[]){
                 root_pointer = create_table(root->child->value,NULL);
                 ast_to_sym_table(root,root_pointer);
                 print_table(root_pointer);
+                check_errors(root, root_pointer, root_pointer);
                 printParseTree(root,0);
             }
         }

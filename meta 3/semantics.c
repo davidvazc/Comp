@@ -436,7 +436,6 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
         }
         root_aux = root_aux->brother;
     }
-    check_errors(root, table_aux, table_root);
 }
 
 param_h* create_param(char* id, char* type)
@@ -811,16 +810,14 @@ char* compare_params(char* id, sym_table_node* simbolos, param_h* params) {
     param_h *p = params;
     int cont = 0;
 
-    while (simbolos->params!=NULL)
-    {
-        while(p->next !=NULL){
+        while(p->next !=NULL && simbolos->params!=NULL){
             printf("\ntipo1:%s tipo2:%s", p->type, troca(simbolos->params->type));
             if (strcmp(p->type,troca(simbolos->params->type))==0)
                 cont++;
             p = p->next;
-        }
         simbolos->params = simbolos->params->next;
-    }
+        }
+    
     printf("\ncont:%d  tamanho:%d\n", cont, getCount(params));
     if (cont == getCount(params)-1){
         
@@ -872,7 +869,7 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     }
     return_type = search_function_type(id_call->value, root, parametros);
 
-    //freeMem(&head);
+    //freeMem(*head);
    
         printf("Return type:%s\n",return_type);
         return strdup(return_type);
