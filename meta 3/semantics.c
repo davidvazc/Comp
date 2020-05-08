@@ -378,7 +378,6 @@ void ast_to_sym_table(ASTtree* root, table_header* table_root)
     ASTtree* root_aux;
     root_aux = root->child;
     ASTtree* child_aux;
-    ASTtree* MethodBody_aux;
     ASTtree* bro_aux;
     table_header* table_aux = table_root;
     char head[100];
@@ -815,7 +814,6 @@ int n_params_on_func(table_header* table)
 
 char* search_function_type(char* id, table_header* table, param_h *params) {
     char* aux;
-    int func_params;
     sym_table_node* local_table;
 
     //printlocaltable(table);
@@ -891,11 +889,8 @@ return head;
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
-    char* aux;
-    int func_params = 0, node_params = 0, error = 0;
     ASTtree* params=id_call->brother;
     param_h *parametros = NULL, *parametrosAUX = NULL;
-    param_h *head;
     while(params!=NULL){
         if(parametros ==NULL){
         	if(strcmp(params->type,"NULL")!=0){
@@ -989,8 +984,8 @@ char* checkMultiplicative(ASTtree* node) {
 
 
 
-    char first_annotation[1024];
-    char second_annotation[1024];
+    //char first_annotation[1024];
+    //char second_annotation[1024];
 
 
     if ((node->child)->annotation != NULL)
@@ -1223,8 +1218,8 @@ void checkMultiplicative2(ASTtree* node)
 
 
 
-    char first_annotation[1024];
-    char second_annotation[1024];
+    //char first_annotation[1024];
+    //char second_annotation[1024];
 
 
 
