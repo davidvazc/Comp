@@ -740,7 +740,11 @@ void printLista(param_h *head) {
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
     char resp[40] = "(";
     char right[] = ")";
+    char parametros[]="";
     char* aux;
+    int aux2=0;
+    sym_table_node* sym_aux;
+    param_h* paramtype;
     sym_table_node* local_table;
     //printlocaltable(table);
     local_table = table->lista_sym;
@@ -751,9 +755,28 @@ char* search_symbol_type(ASTtree* node, table_header* table, table_header* root)
         printf("NODE Type: %sID: %s\n",node->type,node->value);*/
         if (strcmp(local_table->id, node->value) == 0) {
             if (table == root) {
-                strcat(resp, troca(local_table->type));
-                strcat(resp, right);
-                aux = strdup(resp);
+		            paramtype = local_table->params;
+		            while (paramtype)
+		            {
+		                if (aux2 == 1)
+		                {
+		                    strcat(parametros,",");
+		                }
+		                if (aux2 == 0)
+		                {
+		                    strcat(parametros,"(");
+		                    aux2 = 1;
+		                }
+		                strcat(parametros, troca(paramtype->type));
+
+		                paramtype = paramtype->next;
+		            }
+		            if (aux2 != 0)
+		            {
+		                strcat(parametros,")");
+		                aux2 = 0;
+		            }
+                aux = strdup(parametros);
                 return (aux);
             }
             return troca(local_table->type);
