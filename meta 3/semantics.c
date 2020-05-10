@@ -120,7 +120,48 @@ void check_annotations(ASTtree* bro_aux, table_header* table, table_header* root
 
         }
         else if (strcmp(bro_aux->type, "MethodHeader") == 0) {
-            table = search_symbol_table((bro_aux->child)->brother->value, root, root);
+        	ASTtree* child_aux;
+        	ASTtree* param_node;
+    		param_h *parametros = NULL, *parametrosAUX = NULL;
+    		char* aux=strdup("Void");
+		    child_aux = bro_aux->child;
+            while (child_aux)
+            {
+                if (strcmp(child_aux->type, "MethodParams") == 0)
+                    break;
+                child_aux = child_aux->brother;
+            }
+            if((child_aux->child)!=NULL){
+            	param_node=child_aux->child;
+            }
+            	
+			while(param_node!=NULL){
+				    if(parametros ==NULL){
+				     if(strcmp(param_node->child->type,"NULL")!=0){
+					        parametros = (param_h *)malloc(1 * sizeof(param_h));
+					        parametros->type= troca((param_node)->child->type);
+					        parametros->next = NULL;
+					        parametrosAUX = parametros;
+					        //printf("%s\n", parametros->type);
+				        }
+				    } else{
+				     if(strcmp(param_node->child->type,"NULL")!=0){
+					        parametrosAUX->next = (param_h *)malloc(1 * sizeof(param_h));
+					        parametrosAUX = parametrosAUX->next;
+					        parametrosAUX->type= troca((param_node)->child->type);
+					        parametrosAUX->next = NULL;
+					    }
+				    }
+				//printf("%s\n",troca((param_node)->child->type));
+			    param_node=param_node->brother;
+			}
+			if(parametros==NULL){
+				parametros = (param_h *)malloc(1 * sizeof(param_h));
+				parametros->type= aux;
+				parametros->next = NULL;
+            }
+
+            table = search_symbol_table((bro_aux->child)->brother->value, root, root, parametros);
             check_annotations(bro_aux->child, table, root);
 
         }
@@ -150,7 +191,7 @@ void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
 
         }
         else if (strcmp(bro_aux->type, "MethodHeader") == 0) {
-            table = search_symbol_table((bro_aux->child)->brother->value, root, root);
+            //table = search_symbol_table((bro_aux->child)->brother->value, root, root);
             check_errors(bro_aux->brother, table, root);
 
         }
@@ -736,7 +777,7 @@ void printLista(param_h *head) {
 
 
 
-/*Pesquisar um simbolo na tabela local e de seguida na gloval*/
+/*Pesquisar um simbolo na tabela local e de seguida na global*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
     char resp[40] = "(";
     char right[] = ")";
@@ -803,18 +844,35 @@ int getCount(param_h *head)
 }
 
 /*Pesquisar o nome de uma tabela para ver se e funcao*/
-table_header* search_symbol_table(char* id, table_header* table, table_header* root) {
+table_header* search_symbol_table(char* id, table_header* table, table_header* root, param_h* parametros) {
+    param_h *param_table;
+    int cont=0;
+    int tam=getCount(parametros);
     //printlocaltable(table);
     while (table != NULL) {
+    	param_table=table->l_params;
         /*
         printf("TABELA Type: %sId: %s\n",local_table->type,local_table->id);
         printf("NODE Type: %sID: %s\n",node->type,node->value);*/
         if (strcmp(table->head, id) == 0) {
-            return table;
+            while(parametros !=NULL && param_table!=NULL){
+		       	//printf("\ntipo1:%s tipo2:%s", p->type, troca(param_simbolos->type));
+		       	if (strcmp(parametros->type,troca(param_table->type))==0)
+		           	cont++;
+		      	parametros = parametros->next;
+		    	param_table = param_table->next;
+		    }
+		    
+		    //printf("\ncont:%d  tamanho:%d\n", cont, getCount(params));
+		    if (cont == tam){
+		        
+		        return table;
+		    }
         }
+        param_table=NULL;
         table = table->next;
     }
-    return NULL;
+    return root;
 }
 
 
@@ -1090,7 +1148,7 @@ void checkCall2(ASTtree* node, table_header* table, table_header* root)
     ASTtree* params;
     sym_table_node* simbolos;
 
-    table = search_symbol_table(id_call->value, root, root);
+    //table = search_symbol_table(id_call->value, root, root);
 
     if (table != NULL)
     {

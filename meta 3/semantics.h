@@ -58,7 +58,7 @@ char* troca(char*);
 void printlocaltable(table_header*);
 void add_annotations(ASTtree*, table_header*, table_header*);
 char* search_symbol_type(ASTtree*, table_header*, table_header*);
-table_header* search_symbol_table(char*, table_header*, table_header*);
+table_header* search_symbol_table(char*, table_header*, table_header*,param_h*);
 char* checkCall(ASTtree*, table_header*, table_header*);
 char* checkNot(ASTtree*);
 char* checkEquality(ASTtree*);
