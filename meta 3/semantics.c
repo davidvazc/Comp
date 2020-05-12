@@ -121,7 +121,7 @@ void check_annotations(ASTtree* bro_aux, table_header* table, table_header* root
         }
         else if (strcmp(bro_aux->type, "MethodHeader") == 0) {
         	ASTtree* child_aux;
-        	ASTtree* param_node;
+        	ASTtree* param_node=NULL;
     		param_h *parametros = NULL, *parametrosAUX = NULL;
     		char* aux=strdup("Void");
 		    child_aux = bro_aux->child;
@@ -779,12 +779,9 @@ void printLista(param_h *head) {
 
 /*Pesquisar um simbolo na tabela local e de seguida na global*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
-    char resp[40] = "(";
-    char right[] = ")";
     char parametros[]="";
     char* aux;
     int aux2=0;
-    sym_table_node* sym_aux;
     param_h* paramtype;
     sym_table_node* local_table;
     //printlocaltable(table);
