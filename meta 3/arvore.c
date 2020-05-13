@@ -6,14 +6,12 @@
 
 int n_points;
 
-ASTtree* createNode(int line, int col, char* type, char* value) {
+ASTtree* createNode(char* type, char* value) {
 	ASTtree* node = malloc(sizeof(struct ast_node));
 
 	node->type = type;
 	node->value = value;
 
-	node->line_y = line;
-	node->col_y = col;
 	node->annotation = NULL;
 
 	node->child = NULL;
@@ -50,14 +48,14 @@ void appendBrother(ASTtree* brother, ASTtree* node) {
 	}
 }
 
-ASTtree* createNode_Type(int line, int col, ASTtree* vartype, ASTtree* list) {
+ASTtree* createNode_Type(ASTtree* vartype, ASTtree* list) {
 	ASTtree* aux = list;
 	ASTtree* new_node = NULL;
 	int i = 0;
 
 	while (aux != NULL) {
 		if (i == 1) {
-			new_node = createNode(line,col,vartype->type, "NULL");
+			new_node = createNode(vartype->type, "NULL");
 			new_node->brother = aux->child;
 			aux->child = new_node;
 		}
@@ -75,7 +73,7 @@ void printParseTree(ASTtree* no, int n_points) {
 		return;
 	}
 	if (no->annotation != NULL) {
-		if (no->value != NULL && strcmp(no->type, "Deref") != 0) {
+		if (no->value != NULL != 0) {
 			if (strcmp(no->value, "NULL") != 0) {
 				for (i = 0; i < n_points; i++)
 					printf(".");

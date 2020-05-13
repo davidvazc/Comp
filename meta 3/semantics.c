@@ -307,9 +307,14 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
             bro_aux->annotation = strdup("boolean");
 
         }
+        else if (strcmp(bro_aux->type, "StrLit") == 0) {
+            bro_aux->annotation = strdup("String");
+
+        }
         else if (strcmp(bro_aux->type, "Id") == 0) {
             aux = search_symbol_type(bro_aux, table, root);
             bro_aux->annotation = strdup(aux);
+
 
         }
         else if (strcmp(bro_aux->type, "VarDecl") == 0) {
@@ -367,6 +372,9 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
         else if (strcmp(bro_aux->type, "Assign") == 0) {
             add_annotations(bro_aux->child, table, root);
             bro_aux->annotation = checkAssign(bro_aux); //retorna o tipo da expressao a ser atribuida
+            if (strcmp(bro_aux->annotation, "NULL") == 0) {
+                bro_aux->annotation = NULL;
+            }
 
         }
         else if (strcmp(bro_aux->type, "ParseArgs") == 0) {
@@ -378,6 +386,9 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
         else if (strcmp(bro_aux->type, "Length") == 0) {
             add_annotations(bro_aux->child, table, root);
             bro_aux->annotation = checkParseArgs(bro_aux); //retorna int
+
+        }
+        else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
 
         }
         /* FUNCOES DE ERRO
@@ -395,11 +406,6 @@ void add_annotations(ASTtree* bro_aux, table_header* table, table_header* root) 
         else if (strcmp(bro_aux->type, "While") == 0) {
             add_annotations(bro_aux->children, table);
             checkWhile(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkShift(bro_aux);
 
         }
         Assign(2) Or(2) And(2) Eq(2) Ne(2) Lt(2) Gt(2) Le(2) Ge(2) Add(2)
@@ -1008,17 +1014,8 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
 
 char* checkNot(ASTtree* node) {
 
-    char type[1024];
 
-    strcpy(type, (node->child)->annotation);
-
-    if (strcmp(type, "int") == 0 || strcmp(type, "double") == 0 || strcmp(type, "boolean") == 0) {
-        return troca(strdup(type));
-    }
-    else {
-
-        return strdup("undef");
-    }
+    return strdup("boolean");
 }
 
 
@@ -1065,14 +1062,23 @@ char* checkMultiplicative(ASTtree* node) {
 
 
 
-    //char first_annotation[1024];
-    //char second_annotation[1024];
+    char first_annotation[1024];
+    char second_annotation[1024];
 
+    strcpy(first_annotation, (node->child)->annotation);
+    strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    if ((node->child)->annotation != NULL)
-        return troca(strdup((node->child)->annotation));
-    else
+    if (strcmp(first_annotation, "boolean") == 0 || strcmp(second_annotation, "boolean") == 0) {
         return strdup("undef");
+    }
+    else if (strcmp(first_annotation, "double") == 0 || strcmp(second_annotation, "double") == 0) {
+        return strdup("double");
+    }
+    else if (strcmp(first_annotation, "int") == 0 && strcmp(second_annotation, "int") == 0) {
+        return strdup("int");
+    }
+
+    return strdup("undef");
 }
 
 
@@ -1099,7 +1105,17 @@ char* checkAdd(ASTtree* node) {
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    return troca(strdup(first_annotation));
+    if (strcmp(first_annotation, "boolean") == 0 || strcmp(second_annotation, "boolean") == 0) {
+        return strdup("undef");
+    }
+    else if (strcmp(first_annotation, "double") == 0 || strcmp(second_annotation, "double") == 0) {
+        return strdup("double");
+    }
+    else if (strcmp(first_annotation, "int") == 0 && strcmp(second_annotation, "int") == 0) {
+        return strdup("int");
+    }
+
+    return strdup("undef");
 }
 
 
@@ -1114,7 +1130,17 @@ char* checkSub(ASTtree* node) {
     strcpy(first_annotation, (node->child)->annotation);
     strcpy(second_annotation, ((node->child)->brother)->annotation);
 
-    return troca(strdup(first_annotation));
+    if (strcmp(first_annotation, "boolean") == 0 || strcmp(second_annotation, "boolean") == 0) {
+        return strdup("undef");
+    }
+    else if (strcmp(first_annotation, "double") == 0 || strcmp(second_annotation, "double") == 0) {
+        return strdup("double");
+    }
+    else if (strcmp(first_annotation, "int") == 0 && strcmp(second_annotation, "int") == 0) {
+        return strdup("int");
+    }
+
+    return strdup("undef");
 }
 
 
