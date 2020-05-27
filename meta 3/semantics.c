@@ -174,7 +174,6 @@ void check_annotations(ASTtree* bro_aux, table_header* table, table_header* root
     }
 }
 
-
 void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
 {
     if (bro_aux != NULL) {
@@ -250,37 +249,6 @@ void check_errors(ASTtree* bro_aux, table_header* table, table_header* root)
             check_errors(bro_aux->child, table, root);
             checkParseArgs2(bro_aux); //retorna int
         }
-        /* FUNCOES DE ERRO
-        else if (strcmp(bro_aux->type, "If") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkIf(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Return") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkReturn(bro_aux, table);
-
-        }
-        NOS PRECISAMOS DE IMPLEMENTAR
-        else if (strcmp(bro_aux->type, "While") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkWhile(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Lshift") == 0 || strcmp(bro_aux->type, "Rshift") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkShift(bro_aux);
-
-        }
-        else if (strcmp(bro_aux->type, "Length") == 0) {
-            add_annotations(bro_aux->children, table);
-            checkLength(bro_aux);
-
-        }
-        Assign(2) Or(2) And(2) Eq(2) Ne(2) Lt(2) Gt(2) Le(2) Ge(2) Add(2)
-Sub(2) Mul(2) Div(2) Mod(2) Lshift(2) Rshift(2) Xor(2) Not(1) Minus(1)
-Plus(1) Length(1) Call(>=1) ParseArgs(2)
-*/
         else
         {
             check_errors(bro_aux->child, table, root);
@@ -420,8 +388,6 @@ Plus(1) Length(1) Call(>=1) ParseArgs(2)
     }
 }
 
-
-
 void ast_to_sym_table(ASTtree* root, table_header* table_root)
 {
     ASTtree* root_aux;
@@ -549,10 +515,7 @@ param_h* get_params(ASTtree* node)
     return param;
 }
 
-
-
 //========================== FUNCOES PRINT =================================================
-
 
 void printlocaltable(table_header* root) {
     table_header* root_aux = root;
@@ -658,7 +621,6 @@ void printlocaltable(table_header* root) {
     }
 }
 
-
 void print_table(table_header* root)
 {
     table_header* root_aux = root;
@@ -749,10 +711,7 @@ void print_table(table_header* root)
     }
 }
 
-
 //======================FUNCOES UTILITY=================================================
-
-
 /*Escrever o tipo correto na arvore anotada*/
 char* troca(char* tipo) {
     if (strcmp(tipo, "Int") == 0) {
@@ -782,8 +741,6 @@ void printLista(param_h* head) {
         current_node = current_node->next;
     }
 }
-
-
 
 /*Pesquisar um simbolo na tabela local e de seguida na global*/
 char* search_symbol_type(ASTtree* node, table_header* table, table_header* root) {
@@ -880,24 +837,6 @@ table_header* search_symbol_table(char* id, table_header* table, table_header* r
     return root;
 }
 
-
-int n_params_on_func(table_header* table)
-{
-    int n_params = 0;
-    table = (table->next)->next; /* APONTA PARA DEPOIS DE RETURN */
-
-    while (table != NULL && table->flag.flag_param == 1)
-    {
-        if (strcmp(table->lista_sym->type, "void") != 0)
-        {
-            n_params++;
-        }
-        table = table->next;
-    }
-
-    return n_params;
-}
-
 char* search_function_type(char* id, table_header* table, param_h* params) {
     char* aux;
     sym_table_node* local_table;
@@ -920,8 +859,6 @@ char* search_function_type(char* id, table_header* table, param_h* params) {
     }
     return strdup("undef");
 }
-
-
 
 /*Necessario passar o simbolo certo na tabela global e retorna o type correto*/
 char* compare_params(char* id, sym_table_node* simbolos, param_h* params) {
@@ -970,8 +907,6 @@ param_h* add(char* data, param_h* head) {
 
 //======================FUNCOES CHECK ANOTACOES=================================================
 
-
-
 char* checkCall(ASTtree* node, table_header* table, table_header* root) {
     ASTtree* id_call = node->child;
     char* return_type;
@@ -1007,21 +942,11 @@ char* checkCall(ASTtree* node, table_header* table, table_header* root) {
 
 }
 
-
-
-
-
-
 char* checkNot(ASTtree* node) {
 
 
     return strdup("boolean");
 }
-
-
-
-
-
 
 char* checkEquality(ASTtree* node) {
 
@@ -1030,17 +955,11 @@ char* checkEquality(ASTtree* node) {
 
 }
 
-
-
-
-
 char* checkRelational(ASTtree* node) {
 
     return strdup("boolean");
 
 }
-
-
 
 char* checkLogical(ASTtree* node) {
 
@@ -1054,9 +973,6 @@ char* checkLogical(ASTtree* node) {
 
     return strdup("boolean");
 }
-
-
-
 
 char* checkMultiplicative(ASTtree* node) {
 
@@ -1081,9 +997,6 @@ char* checkMultiplicative(ASTtree* node) {
     return strdup("undef");
 }
 
-
-
-
 char* checkUnary(ASTtree* node) {
     char first_annotation[1024];
 
@@ -1091,9 +1004,6 @@ char* checkUnary(ASTtree* node) {
 
     return troca(strdup(first_annotation));
 }
-
-
-
 
 char* checkAdd(ASTtree* node) {
 
@@ -1118,8 +1028,6 @@ char* checkAdd(ASTtree* node) {
     return strdup("undef");
 }
 
-
-
 char* checkSub(ASTtree* node) {
 
 
@@ -1143,7 +1051,6 @@ char* checkSub(ASTtree* node) {
     return strdup("undef");
 }
 
-
 char* checkAssign(ASTtree* node) {
 
 
@@ -1156,8 +1063,6 @@ char* checkAssign(ASTtree* node) {
 
     return troca(strdup(first_annotation));
 }
-
-
 
 char* checkParseArgs(ASTtree* node) {
 

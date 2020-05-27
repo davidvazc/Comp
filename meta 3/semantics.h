@@ -34,10 +34,6 @@ typedef struct table_h
     char* head;
     sym_table_node* lista_sym;
     param_h* l_params;
-    union {
-        int flag_print;
-        int flag_param;
-    } flag;
 
     struct table_h* next;
 
